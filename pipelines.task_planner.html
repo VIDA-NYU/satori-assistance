@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Guidance Pipelines &#8212; Satori v0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=4c0d86c8"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="canonical" href="https://VIDA-NYU.github.io/satori-assistance/pipelines.task_planner.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Render" href="pipelines.render.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="guidance-pipelines">
+<h1>Guidance Pipelines<a class="headerlink" href="#guidance-pipelines" title="Permalink to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">guidance</span></code> module contains pipelines for AR task tracking and visual assistance generation.
+It includes task state controllers and GPT-based visual reasoning pipelines.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
+<p>The guidance module consists of modular pipelines that collectively support proactive AR task assistance.
+Each pipeline performs a distinct reasoning or control function in the Satori system:</p>
+<ul class="simple">
+<li><p><strong>Task Control Pipeline</strong>: Tracks and manages transitions between multi-step tasks, maintaining context over time.</p></li>
+<li><p><strong>GPT Guidance Pipeline</strong>: Generates contextual multimodal guidance (e.g., text, image) for the current user action using GPT-4V.</p></li>
+<li><p><strong>GPT Action Pipeline</strong>: Recognizes and forecasts user actions based on visual input and GPT-based reasoning.</p></li>
+<li><p><strong>Task Planner Pipeline</strong>: Converts high-level goals into step-wise task plans with detailed checkpoints for progress tracking.</p></li>
+<li><p><strong>Step Checkpoint Pipeline</strong>: Monitors visual checkpoints to determine completion status of each task step and triggers next-step logic.</p></li>
+</ul>
+<p>These pipelines form the core of the Satori system’s reasoning layer, enabling intelligent, timely, and personalized AR guidance.</p>
+</section>
+<section id="module-pipelines.task.task_control_pipeline">
+<span id="task-control-pipeline"></span><h2>Task Control Pipeline<a class="headerlink" href="#module-pipelines.task.task_control_pipeline" title="Permalink to this heading">¶</a></h2>
+<p>Task Control Pipeline</p>
+<p>Handles stream-driven guidance for procedural tasks, such as brewing coffee, by maintaining task state,
+processing user feedback, and coordinating guidance generation using a finite state machine and input from
+multimodal sensors. Designed for integration into the Satori AR assistant system.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.CheckpointReachAction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.task.task_control_pipeline.</span></span><span class="sig-name descname"><span class="pre">CheckpointReachAction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_price</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_on_hand</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.CheckpointReachAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Dataclass representing an action where a user reaches a specific checkpoint
+in a task. Used for tracking inventory or progress data.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.CheckpointReachAction.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.CheckpointReachAction.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the checkpoint or action.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.CheckpointReachAction.unit_price">
+<span class="sig-name descname"><span class="pre">unit_price</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.CheckpointReachAction.unit_price" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cost or value associated with this action (if applicable).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.CheckpointReachAction.quantity_on_hand">
+<span class="sig-name descname"><span class="pre">quantity_on_hand</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.CheckpointReachAction.quantity_on_hand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tracks inventory or count (default is 0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">quantity_on_hand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">unit_price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.task.task_control_pipeline.</span></span><span class="sig-name descname"><span class="pre">TaskControlPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'coffee'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ptgctl_pipeline.pipelines.html#ptgctl_pipeline.ptgctl_pipeline.pipeline.base.BasePipeline" title="ptgctl_pipeline.ptgctl_pipeline.pipeline.base.BasePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePipeline</span></code></a></p>
+<p>Main control pipeline for task guidance coordination in the Satori AR system.</p>
+<p>This pipeline:
+- Maintains current task state using a fuzzy state machine.
+- Responds to user actions and feedback via trigger/input streams.
+- Orchestrates downstream pipelines like checkpoint tester and guidance generator.
+- Issues activation commands for guidance at key steps.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>Camera frames and predicted checkpoints/guidance</p></li>
+<li><p>Task plans and step-level feedback</p></li>
+<li><p>Activation requests (fast/slow)</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p>Updated task steps and task state</p></li>
+<li><p>Trigger signals for checkpoint testing and guidance generation</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.task_name">
+<span class="sig-name descname"><span class="pre">task_name</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.task_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the task (e.g., ‘coffee’).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.task_machine">
+<span class="sig-name descname"><span class="pre">task_machine</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.task_machine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internal task state manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>FuzzyTaskMachine</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.feedback_actions">
+<span class="sig-name descname"><span class="pre">feedback_actions</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.feedback_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Feedback queue from the user.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>deque</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.guidance_pred">
+<span class="sig-name descname"><span class="pre">guidance_pred</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.guidance_pred" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores the predicted guidance for current step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.states">
+<span class="sig-name descname"><span class="pre">states</span></span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tracks whether steps/guidance have changed/shown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.IMAGE_INPUT_STREAM_NAME">
+<span class="sig-name descname"><span class="pre">IMAGE_INPUT_STREAM_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'main'</span></em><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.IMAGE_INPUT_STREAM_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.OUTPUT_STREAM">
+<span class="sig-name descname"><span class="pre">OUTPUT_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'assistant:test'</span></em><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.OUTPUT_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.TRIGGER_STREAM">
+<span class="sig-name descname"><span class="pre">TRIGGER_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'intent:trigger:controlx'</span></em><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.TRIGGER_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.determine_next_step">
+<span class="sig-name descname"><span class="pre">determine_next_step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.determine_next_step" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.merge_fast_slow_message">
+<span class="sig-name descname"><span class="pre">merge_fast_slow_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fast_message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slow_message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guidance_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fast_detect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slow_detect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fast_active</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slow_active</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.merge_fast_slow_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.on_input_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_input_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.on_input_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle all input streams to update task state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>dict</em>) – Stream message content.</p></li>
+<li><p><strong>sid</strong> (<em>str</em>) – Stream identifier.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.on_trigger_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_trigger_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.on_trigger_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger guidance generation and update task state outputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – Trigger input (ignored).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Outbound messages for various guidance and state outputs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.prepare_guidance_message">
+<span class="sig-name descname"><span class="pre">prepare_guidance_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update_message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_countdown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.prepare_guidance_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.prepare_initializing_message">
+<span class="sig-name descname"><span class="pre">prepare_initializing_message</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.prepare_initializing_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.prepare_task_status">
+<span class="sig-name descname"><span class="pre">prepare_task_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.prepare_task_status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.TaskControlPipeline.schedule_new_guidance">
+<span class="sig-name descname"><span class="pre">schedule_new_guidance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.TaskControlPipeline.schedule_new_guidance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag pipeline state as needing to generate new guidance.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipelines.task.task_control_pipeline.enumerate_and_clear">
+<span class="sig-prename descclassname"><span class="pre">pipelines.task.task_control_pipeline.</span></span><span class="sig-name descname"><span class="pre">enumerate_and_clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_control_pipeline.enumerate_and_clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consume and yield all items from a deque.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sequence</strong> (<em>deque</em>) – A deque to enumerate and clear.</p>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p>deque item</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pipelines.task.gpt_guidance_pipeline">
+<span id="gpt-guidance-pipeline"></span><h2>GPT Guidance Pipeline<a class="headerlink" href="#module-pipelines.task.gpt_guidance_pipeline" title="Permalink to this heading">¶</a></h2>
+<p>GPTGuidancePipeline</p>
+<p>A stream-driven pipeline for generating multimodal step-level guidance using GPT-4V.</p>
+<p>This implementation listens to image input, user beliefs, task step descriptions,
+and expertise level, and responds to trigger messages by generating task guidance.
+The output includes intent, desire, meta-intent, and both textual and visual guidance.</p>
+<p>This pipeline adheres to Satori’s pipeline abstraction and is designed to be reactive
+and stateless between invocations. It supports modular integration via ptgctl streams.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.task.gpt_guidance_pipeline.</span></span><span class="sig-name descname"><span class="pre">GPTGuidancePipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system_prompt='You</span> <span class="pre">are</span> <span class="pre">an</span> <span class="pre">AR</span> <span class="pre">assistant</span> <span class="pre">helping</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">with</span> <span class="pre">tasks.</span> <span class="pre">You</span> <span class="pre">will</span> <span class="pre">be</span> <span class="pre">given</span> <span class="pre">a</span> <span class="pre">full</span> <span class="pre">task</span> <span class="pre">description</span> <span class="pre">&lt;TASK_DESCRIPTION&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">the</span> <span class="pre">next</span> <span class="pre">step</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">will</span> <span class="pre">do</span> <span class="pre">&lt;NEXT_STEP&gt;</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">expertise</span> <span class="pre">of</span> <span class="pre">user</span> <span class="pre">&lt;EXPERTISE&gt;.</span> <span class="pre">&lt;TASK_DESCRIPTION&gt;</span> <span class="pre">is</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">possible</span> <span class="pre">tasks</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">might</span> <span class="pre">conduct</span> <span class="pre">one</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">tasks.</span> <span class="pre">Your</span> <span class="pre">goal</span> <span class="pre">is</span> <span class="pre">to</span> <span class="pre">generate</span> <span class="pre">contextual</span> <span class="pre">and</span> <span class="pre">useful</span> <span class="pre">assistance</span> <span class="pre">based</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">given</span> <span class="pre">query.</span> <span class="pre">\\nPlease</span> <span class="pre">output</span> <span class="pre">the</span> <span class="pre">following</span> <span class="pre">information</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">response:\\n\\n&lt;DESIRE&gt;</span> <span class="pre">[Based</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">given</span> <span class="pre">&lt;NEXT_STEP&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate</span> <span class="pre">the</span> <span class="pre">user\\'s</span> <span class="pre">high-level</span> <span class="pre">desire.</span> <span class="pre">Refer</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">&lt;TASK_DESCRIPTION&gt;</span> <span class="pre">for</span> <span class="pre">possible</span> <span class="pre">tasks\\'</span> <span class="pre">goal.</span> <span class="pre">Output</span> <span class="pre">this</span> <span class="pre">high-level</span> <span class="pre">desire</span> <span class="pre">prefixed</span> <span class="pre">with</span> <span class="pre">&lt;DESIRE&gt;.]\\n&lt;INTENT&gt;</span> <span class="pre">[Describe</span> <span class="pre">a</span> <span class="pre">basic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concrete</span> <span class="pre">action</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">step]\\n&lt;META_INTENT&gt;</span> <span class="pre">[Generate</span> <span class="pre">meta-intent</span> <span class="pre">from</span> <span class="pre">given</span> <span class="pre">meta-intent</span> <span class="pre">list</span> <span class="pre">[make</span> <span class="pre">a</span> <span class="pre">tool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interact</span> <span class="pre">with</span> <span class="pre">time-dependent</span> <span class="pre">tools</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interact</span> <span class="pre">with</span> <span class="pre">time-independent</span> <span class="pre">tools</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interact</span> <span class="pre">with</span> <span class="pre">materials]</span> <span class="pre">based</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">user_intent</span> <span class="pre">&lt;INTENT&gt;.</span> <span class="pre">Output</span> <span class="pre">this</span> <span class="pre">single</span> <span class="pre">meta-intent</span> <span class="pre">prefixed</span> <span class="pre">with</span> <span class="pre">&lt;META_INTENT&gt;.</span> <span class="pre">\\\\\\n</span>&#160;&#160;&#160; <span class="pre">The</span> <span class="pre">meta-intent</span> <span class="pre">refers</span> <span class="pre">the</span> <span class="pre">user\\'s</span> <span class="pre">most</span> <span class="pre">fundamental</span> <span class="pre">intent</span> <span class="pre">without</span> <span class="pre">the</span> <span class="pre">contextual</span> <span class="pre">information.</span> <span class="pre">\\n</span>&#160;&#160;&#160; <span class="pre">make</span> <span class="pre">a</span> <span class="pre">tool</span> <span class="pre">example</span> <span class="pre">intent:</span> <span class="pre">assemble</span> <span class="pre">Swiffer</span> <span class="pre">mob</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make</span> <span class="pre">coffee</span> <span class="pre">filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrange</span> <span class="pre">flower</span> <span class="pre">creatively;\\n</span>&#160;&#160;&#160; <span class="pre">interact</span> <span class="pre">with</span> <span class="pre">time-dependent</span> <span class="pre">tool</span> <span class="pre">example</span> <span class="pre">intent:</span> <span class="pre">use</span> <span class="pre">grinder</span> <span class="pre">to</span> <span class="pre">grind</span> <span class="pre">coffee</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heat</span> <span class="pre">food</span> <span class="pre">using</span> <span class="pre">microwave;\\n</span>&#160;&#160;&#160; <span class="pre">interact</span> <span class="pre">with</span> <span class="pre">time-independent</span> <span class="pre">example</span> <span class="pre">intent:</span> <span class="pre">connect</span> <span class="pre">to</span> <span class="pre">VR</span> <span class="pre">headset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use</span> <span class="pre">a</span> <span class="pre">mop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use</span> <span class="pre">a</span> <span class="pre">stainer;\\n</span>&#160;&#160;&#160; <span class="pre">interact</span> <span class="pre">with</span> <span class="pre">materials</span> <span class="pre">example</span> <span class="pre">intent:</span> <span class="pre">add</span> <span class="pre">ingredients</span> <span class="pre">to</span> <span class="pre">a</span> <span class="pre">bowl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pour</span> <span class="pre">water</span> <span class="pre">into</span> <span class="pre">a</span> <span class="pre">cup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut</span> <span class="pre">flower</span> <span class="pre">stems]\\n&lt;GUIDANCE_TYPE&gt;</span> <span class="pre">[Based</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">identified</span> <span class="pre">&lt;META_INTENT&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">select</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">guidance</span> <span class="pre">type</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">following</span> <span class="pre">mappings:</span> <span class="pre">\\\\\\n</span>&#160;&#160; <span class="pre">{&quot;make</span> <span class="pre">a</span> <span class="pre">tool&quot;:</span> <span class="pre">&quot;image&quot;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">\\n</span>&#160;&#160; <span class="pre">&quot;interact</span> <span class="pre">with</span> <span class="pre">time</span> <span class="pre">dependent-tools&quot;:</span> <span class="pre">&quot;timer&quot;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">\\n</span>&#160;&#160; <span class="pre">&quot;interact</span> <span class="pre">with</span> <span class="pre">time</span> <span class="pre">independent-tools&quot;:</span> <span class="pre">&quot;image&quot;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">\\n</span>&#160;&#160; <span class="pre">&quot;interact</span> <span class="pre">with</span> <span class="pre">materials&quot;:</span> <span class="pre">&quot;note&quot;}]\\n&lt;OBJECT_LIST&gt;</span> <span class="pre">[Identify</span> <span class="pre">key</span> <span class="pre">objects</span> <span class="pre">which</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">is</span> <span class="pre">interacting</span> <span class="pre">with</span> <span class="pre">following</span> <span class="pre">the</span> <span class="pre">&lt;STEP_DESCRIPTION&gt;</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">properties</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">objects</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e.g.</span> <span class="pre">color</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size.</span> <span class="pre">Output</span> <span class="pre">an</span> <span class="pre">object</span> <span class="pre">interaction</span> <span class="pre">list</span> <span class="pre">with</span> <span class="pre">descriptions</span> <span class="pre">of</span> <span class="pre">properties.]\\n&lt;TEXT_GUIDANCE_CONTENT&gt;</span> <span class="pre">[Generate</span> <span class="pre">text</span> <span class="pre">guidance</span> <span class="pre">content</span> <span class="pre">best</span> <span class="pre">fit</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">in</span> <span class="pre">this</span> <span class="pre">step.</span> <span class="pre">This</span> <span class="pre">guidance</span> <span class="pre">should</span> <span class="pre">consider</span> <span class="pre">the</span> <span class="pre">contextual</span> <span class="pre">information</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e.g.</span> <span class="pre">the</span> <span class="pre">properties</span> <span class="pre">object</span> <span class="pre">in</span> <span class="pre">real</span> <span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">the</span> <span class="pre">tips</span> <span class="pre">that</span> <span class="pre">user</span> <span class="pre">should</span> <span class="pre">pay</span> <span class="pre">attention</span> <span class="pre">to.</span> <span class="pre">Output</span> <span class="pre">based</span> <span class="pre">on</span>&#160; <span class="pre">the</span> <span class="pre">&lt;STEP_DESCRIPTION&gt;</span> <span class="pre">and</span> <span class="pre">user\\'s</span> <span class="pre">&lt;INTENT&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">the</span> <span class="pre">object</span> <span class="pre">interaction</span> <span class="pre">list</span> <span class="pre">&lt;OBJECT_LIST&gt;</span> <span class="pre">and</span> <span class="pre">level</span> <span class="pre">of</span> <span class="pre">detail</span> <span class="pre">&lt;LOD&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting</span> <span class="pre">with</span> <span class="pre">&lt;TEXT_GUIDANCE_TITLE&gt;</span> <span class="pre">and</span> <span class="pre">&lt;TEXT_GUIDANCE_CONTENT&gt;.</span> <span class="pre">NOT</span> <span class="pre">generate</span> <span class="pre">text</span> <span class="pre">guidance</span> <span class="pre">for</span> <span class="pre">&lt;DESIRE&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only</span> <span class="pre">generate</span> <span class="pre">guidance</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">fundamental</span> <span class="pre">action</span> <span class="pre">&lt;INTENT&gt;\\\\\\n</span>&#160;&#160; <span class="pre">In</span> <span class="pre">&lt;TEXT_GUIDANCE_CONTENT&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incorporate</span> <span class="pre">concrete</span> <span class="pre">numbers</span> <span class="pre">as</span> <span class="pre">required</span> <span class="pre">by</span> <span class="pre">the</span> <span class="pre">&lt;TASK_DESCRIPTON&gt;</span> <span class="pre">if</span> <span class="pre">possible.]\\n&lt;TEXT_GUIDANCE_TITLE&gt;</span> <span class="pre">[Short</span> <span class="pre">title]\\n&lt;DALLE_PROMPT&gt;</span> <span class="pre">[Based</span> <span class="pre">on</span> <span class="pre">&lt;INTENT&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;OBJECT_LIST&gt;</span> <span class="pre">and</span> <span class="pre">&lt;EXPERTISE&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate</span> <span class="pre">a</span> <span class="pre">DALLE</span> <span class="pre">prompt</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">following</span> <span class="pre">template</span> <span class="pre">in</span> <span class="pre">appropriate</span> <span class="pre">detail.</span> <span class="pre">The</span> <span class="pre">prompt</span> <span class="pre">should</span> <span class="pre">not</span> <span class="pre">consider</span> <span class="pre">&lt;DESIRE&gt;.</span> <span class="pre">The</span> <span class="pre">prompt</span> <span class="pre">should</span> <span class="pre">integrate</span> <span class="pre">the</span> <span class="pre">intent</span> <span class="pre">&lt;INTENT&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assistance</span> <span class="pre">&lt;TEXT_GUIDANCE_CONTENT&gt;</span> <span class="pre">and</span> <span class="pre">object</span> <span class="pre">interactions</span> <span class="pre">&lt;OBJECT_LIST&gt;</span> <span class="pre">to</span> <span class="pre">depict</span> <span class="pre">action</span> <span class="pre">clearly</span> <span class="pre">and</span> <span class="pre">include</span> <span class="pre">a</span> <span class="pre">red</span> <span class="pre">arrow</span> <span class="pre">(&lt;INDICATOR&gt;)</span> <span class="pre">showing</span> <span class="pre">action</span> <span class="pre">direction.\\\\\\n</span>&#160;&#160;&#160; <span class="pre">if</span> <span class="pre">&lt;EXPERTISE&gt;</span> <span class="pre">is</span> <span class="pre">novice</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span> <span class="pre">DALLE</span> <span class="pre">to</span> <span class="pre">show</span> <span class="pre">actions</span> <span class="pre">and</span> <span class="pre">interacting</span> <span class="pre">objects</span> <span class="pre">using</span> <span class="pre">the</span> <span class="pre">template:</span> <span class="pre">&quot;&lt;INTENT&gt;or&lt;TEXT_GUIDANCE_CONTENT&gt;</span> <span class="pre">&lt;OBJECT_LIST&gt;.</span> <span class="pre">&lt;INDICATOR&gt;&quot;.\\n</span>&#160;&#160;&#160; <span class="pre">if</span> <span class="pre">&lt;EXPERTISE&gt;</span> <span class="pre">is</span> <span class="pre">expert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span> <span class="pre">DALLE</span> <span class="pre">to</span> <span class="pre">show</span> <span class="pre">final</span> <span class="pre">result</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">&lt;INTENT&gt;</span> <span class="pre">using</span> <span class="pre">the</span> <span class="pre">template:</span> <span class="pre">&quot;&lt;INTENT&gt;or&lt;TEXT_GUIDANCE_CONTENT&gt;</span> <span class="pre">&lt;OBJECT_LIST&gt;.&lt;INDICATOR&gt;&quot;.]\\n&lt;HIGHLIGHT_OBJECT_FLAG&gt;</span> <span class="pre">[True</span> <span class="pre">if</span> <span class="pre">key</span> <span class="pre">objects</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">step</span> <span class="pre">to</span> <span class="pre">highlight]\\n&lt;HIGHLIGHT_OBJECT_LOC&gt;</span> <span class="pre">[Location</span> <span class="pre">of</span> <span class="pre">key</span> <span class="pre">object</span> <span class="pre">if</span> <span class="pre">applicable]\\n&lt;HIGHLIGHT_OBJECT_LABEL&gt;</span> <span class="pre">[Name</span> <span class="pre">of</span> <span class="pre">key</span> <span class="pre">object</span> <span class="pre">if</span> <span class="pre">applicable]\\n&lt;CONFIRMATION_CONTENT&gt;</span> <span class="pre">[Select</span> <span class="pre">confirmation</span> <span class="pre">content</span> <span class="pre">and</span> <span class="pre">insert</span> <span class="pre">&lt;INTENT&gt;&lt;GUIDANCE_TYPE&gt;</span> <span class="pre">into</span> <span class="pre">sentence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starting</span> <span class="pre">with</span> <span class="pre">&lt;CONFIRMATION_CONTENT&gt;:</span> <span class="pre">&quot;Looks</span> <span class="pre">like</span> <span class="pre">you</span> <span class="pre">are</span> <span class="pre">going</span> <span class="pre">to</span> <span class="pre">&lt;INTENT&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do</span> <span class="pre">you</span> <span class="pre">need</span> <span class="pre">&lt;GUIDANCE_TYPE&gt;?&quot;]\\n\\nExample:\\n&lt;NEXT_STEP&gt;</span> <span class="pre">Pour</span> <span class="pre">70g</span> <span class="pre">water</span> <span class="pre">into</span> <span class="pre">coffee</span> <span class="pre">brewer</span> <span class="pre">in</span> <span class="pre">30</span> <span class="pre">seconds\\n&lt;EXPERTISE&gt;</span> <span class="pre">novice\\nOutput:\\n&lt;INTENT&gt;</span> <span class="pre">Pour</span> <span class="pre">water</span> <span class="pre">into</span> <span class="pre">coffee</span> <span class="pre">brewer\\n&lt;META_INTENT&gt;</span> <span class="pre">interact</span> <span class="pre">with</span> <span class="pre">time-dependent</span> <span class="pre">tools\\n&lt;GUIDANCE_TYPE&gt;</span> <span class="pre">timer\\n&lt;TEXT_GUIDANCE_TITLE&gt;</span> <span class="pre">Pour</span> <span class="pre">water</span> <span class="pre">into</span> <span class="pre">coffee</span> <span class="pre">brewer\\n&lt;TEXT_GUIDANCE_CONTENT&gt;</span> <span class="pre">1.</span> <span class="pre">Start</span> <span class="pre">timer.</span> <span class="pre">2.</span> <span class="pre">Pour</span> <span class="pre">water</span> <span class="pre">in</span> <span class="pre">center</span> <span class="pre">of</span> <span class="pre">grounds</span> <span class="pre">to</span> <span class="pre">70g.</span> <span class="pre">3.</span> <span class="pre">Wait</span> <span class="pre">for</span> <span class="pre">30s.\\n&lt;DALLE_PROMPT&gt;</span> <span class="pre">Hand</span> <span class="pre">pouring</span> <span class="pre">water</span> <span class="pre">from</span> <span class="pre">gooseneck</span> <span class="pre">kettle</span> <span class="pre">into</span> <span class="pre">pour-over</span> <span class="pre">coffee</span> <span class="pre">maker.</span> <span class="pre">Red</span> <span class="pre">arrow</span> <span class="pre">shows</span> <span class="pre">pour</span> <span class="pre">direction.</span> <span class="pre">Timer</span> <span class="pre">displays</span> <span class="pre">30</span> <span class="pre">seconds.\\n&lt;OBJECT_LIST&gt;</span> <span class="pre">Coffee</span> <span class="pre">brewer</span> <span class="pre">(glass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conical)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Kettle</span> <span class="pre">(metal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gooseneck)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Coffee</span> <span class="pre">grounds</span> <span class="pre">(dark</span> <span class="pre">brown)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Timer</span> <span class="pre">(digital)\\n&lt;HIGHLIGHT_OBJECT_FLAG&gt;</span> <span class="pre">True\\n&lt;HIGHLIGHT_OBJECT_LOC&gt;</span> <span class="pre">center\\n&lt;HIGHLIGHT_OBJECT_LABEL&gt;</span> <span class="pre">coffee</span> <span class="pre">brewer\\n&lt;CONFIRMATION_CONTENT&gt;</span> <span class="pre">Looks</span> <span class="pre">like</span> <span class="pre">you</span> <span class="pre">are</span> <span class="pre">going</span> <span class="pre">to</span> <span class="pre">use</span> <span class="pre">the</span> <span class="pre">kettle</span> <span class="pre">to</span> <span class="pre">pour</span> <span class="pre">the</span> <span class="pre">water</span> <span class="pre">into</span> <span class="pre">a</span> <span class="pre">coffee</span> <span class="pre">brewer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do</span> <span class="pre">you</span> <span class="pre">need</span> <span class="pre">a</span> <span class="pre">timer</span> <span class="pre">assistance</span> <span class="pre">for</span> <span class="pre">it?\\n'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model='gpt-4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_resolution=512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">downsample_rate=3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_map={}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ptgctl_pipeline.pipelines.html#ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.GPT4VPipeline" title="ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.gpt4v_pipeline.GPT4VPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">GPT4VPipeline</span></code></a></p>
+<p>A pipeline for multimodal guidance generation based on egocentric image and task context.</p>
+<p>Listens to:
+- <cite>main</cite> (image)
+- <cite>intent:belief</cite> (user/system belief)
+- <cite>intent:task:step:next</cite> (next task step)
+- <cite>intent:expertise</cite> (user expertise level)</p>
+<p>Triggered by:
+- <cite>intent:trigger:guidance</cite></p>
+<p>Outputs to:
+- <cite>intent:pred:guidance</cite> with parsed structured fields</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.IMAGE_INPUT_STREAM_NAME">
+<span class="sig-name descname"><span class="pre">IMAGE_INPUT_STREAM_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'main'</span></em><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.IMAGE_INPUT_STREAM_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.OUTPUT_STREAM">
+<span class="sig-name descname"><span class="pre">OUTPUT_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'intent:pred:guidance'</span></em><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.OUTPUT_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.TASK_DESCRIPTION">
+<span class="sig-name descname"><span class="pre">TASK_DESCRIPTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.TASK_DESCRIPTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.TRIGGER_STREAM">
+<span class="sig-name descname"><span class="pre">TRIGGER_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'intent:trigger:guidance'</span></em><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.TRIGGER_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.assemble_dialogue_xml">
+<span class="sig-name descname"><span class="pre">assemble_dialogue_xml</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.assemble_dialogue_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assemble user-assistant dialogue into XML string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>XML-formatted dialogue history.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.get_prompt_message">
+<span class="sig-name descname"><span class="pre">get_prompt_message</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.get_prompt_message" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.on_input_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_input_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.on_input_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process incoming stream messages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>dict</em>) – Incoming message payload.</p></li>
+<li><p><strong>sid</strong> (<em>str</em>) – Stream identifier.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.on_trigger_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_trigger_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.on_trigger_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger handler that generates guidance using GPT-4V when a trigger message is received.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – The trigger message (unused).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Processed guidance response.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.parse_chat_message">
+<span class="sig-name descname"><span class="pre">parse_chat_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.parse_chat_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse chat message string with pipe-separated content and timestamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – Raw chat message in the format “content|timestamp”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed dictionary with content and timestamp or None if format invalid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.parse_result">
+<span class="sig-name descname"><span class="pre">parse_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.parse_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split GPT output into visible lines and extract internal thoughts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result</strong> (<em>str</em>) – Multiline GPT string output.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of result lines, and a string of internal thoughts.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[list[str], str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_guidance_pipeline.GPTGuidancePipeline.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract and structure guidance information from GPT output lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result</strong> (<em>list</em><em> of </em><em>str</em>) – Lines of GPT-4V response.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed guidance information.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pipelines.task.gpt_action_pipeline">
+<span id="gpt-action-pipeline"></span><h2>GPT Action Pipeline<a class="headerlink" href="#module-pipelines.task.gpt_action_pipeline" title="Permalink to this heading">¶</a></h2>
+<p>GPT Action Prediction Pipeline</p>
+<p>Uses GPT-4V to infer the state of task checkpoints based on egocentric images.
+Generates structured predictions (COMPLETED, IN_PROGRESS, etc.) for each checkpoint and overall step.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.task.gpt_action_pipeline.</span></span><span class="sig-name descname"><span class="pre">GPTActionPredictionPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">api_key='',</span> <span class="pre">system_prompt='Analyze</span> <span class="pre">the</span> <span class="pre">input</span> <span class="pre">image</span> <span class="pre">and</span> <span class="pre">determine</span> <span class="pre">the</span> <span class="pre">status</span> <span class="pre">of</span> <span class="pre">each</span> <span class="pre">checkpoint</span> <span class="pre">for</span> <span class="pre">the</span> <span class="pre">current</span> <span class="pre">step.</span> <span class="pre">Provide</span> <span class="pre">your</span> <span class="pre">analysis</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">following</span> <span class="pre">JSON</span> <span class="pre">format:\\n\\n{\\n</span>&#160; <span class="pre">&quot;checkpoints&quot;:</span> <span class="pre">[\\n</span>&#160;&#160;&#160; <span class="pre">{\\n</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">&quot;description&quot;:</span> <span class="pre">&quot;[Checkpoint</span> <span class="pre">description]&quot;,\\n</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">&quot;analysis&quot;:</span> <span class="pre">&quot;[Detailed</span> <span class="pre">analysis</span> <span class="pre">based</span> <span class="pre">on</span> <span class="pre">visual</span> <span class="pre">evidence]&quot;,\\n</span>&#160;&#160;&#160;&#160;&#160; <span class="pre">&quot;status&quot;:</span> <span class="pre">&quot;[COMPLETED/IN_PROGRESS/NOT_STARTED]&quot;\\n</span>&#160;&#160;&#160; <span class="pre">}\\n</span>&#160;&#160;&#160; <span class="pre">/*</span> <span class="pre">Repeat</span> <span class="pre">for</span> <span class="pre">each</span> <span class="pre">checkpoint</span> <span class="pre">*/\\n</span>&#160; <span class="pre">],\\n</span>&#160; <span class="pre">&quot;overallAnalysis&quot;:</span> <span class="pre">&quot;[Comprehensive</span> <span class="pre">analysis</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">entire</span> <span class="pre">image</span> <span class="pre">in</span> <span class="pre">relation</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">current</span> <span class="pre">step]&quot;,\\n</span>&#160; <span class="pre">&quot;overallStatus&quot;:</span> <span class="pre">&quot;[PROCESSING/COMPLETED/NOT_STARTED/UNRELATED]&quot;\\n}\\n\\nFor</span> <span class="pre">each</span> <span class="pre">checkpoint:\\n1.</span> <span class="pre">Provide</span> <span class="pre">a</span> <span class="pre">detailed</span> <span class="pre">analysis</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">visual</span> <span class="pre">evidence</span> <span class="pre">related</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">checkpoint.\\n2.</span> <span class="pre">Based</span> <span class="pre">on</span> <span class="pre">your</span> <span class="pre">analysis,</span> <span class="pre">determine</span> <span class="pre">the</span> <span class="pre">status</span> <span class="pre">using</span> <span class="pre">one</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">following</span> <span class="pre">codes:\\n</span>&#160;&#160; <span class="pre">-</span> <span class="pre">COMPLETED:</span> <span class="pre">Visual</span> <span class="pre">evidence</span> <span class="pre">clearly</span> <span class="pre">shows</span> <span class="pre">this</span> <span class="pre">checkpoint</span> <span class="pre">has</span> <span class="pre">been</span> <span class="pre">accomplished.\\n</span>&#160;&#160; <span class="pre">-</span> <span class="pre">IN_PROGRESS:</span> <span class="pre">There</span> <span class="pre">is</span> <span class="pre">evidence</span> <span class="pre">that</span> <span class="pre">this</span> <span class="pre">checkpoint</span> <span class="pre">has</span> <span class="pre">been</span> <span class="pre">started</span> <span class="pre">but</span> <span class="pre">not</span> <span class="pre">completed.\\n</span>&#160;&#160; <span class="pre">-</span> <span class="pre">NOT_STARTED:</span> <span class="pre">No</span> <span class="pre">visual</span> <span class="pre">evidence</span> <span class="pre">of</span> <span class="pre">progress</span> <span class="pre">on</span> <span class="pre">this</span> <span class="pre">checkpoint.\\n\\nFor</span> <span class="pre">the</span> <span class="pre">overall</span> <span class="pre">analysis:\\n1.</span> <span class="pre">Provide</span> <span class="pre">a</span> <span class="pre">comprehensive</span> <span class="pre">analysis</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">entire</span> <span class="pre">image</span> <span class="pre">in</span> <span class="pre">relation</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">current</span> <span class="pre">step.\\n2.</span> <span class="pre">If</span> <span class="pre">the</span> <span class="pre">image</span> <span class="pre">appears</span> <span class="pre">unrelated,</span> <span class="pre">explain</span> <span class="pre">why</span> <span class="pre">it</span> <span class="pre">doesn\\'t</span> <span class="pre">match</span> <span class="pre">the</span> <span class="pre">current</span> <span class="pre">step</span> <span class="pre">and,</span> <span class="pre">if</span> <span class="pre">possible,</span> <span class="pre">suggest</span> <span class="pre">which</span> <span class="pre">step</span> <span class="pre">it</span> <span class="pre">might</span> <span class="pre">be</span> <span class="pre">related</span> <span class="pre">to</span> <span class="pre">or</span> <span class="pre">what</span> <span class="pre">action</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">appears</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">performing</span> <span class="pre">instead.\\n3.</span> <span class="pre">Based</span> <span class="pre">on</span> <span class="pre">your</span> <span class="pre">analysis,</span> <span class="pre">determine</span> <span class="pre">the</span> <span class="pre">overall</span> <span class="pre">status</span> <span class="pre">using</span> <span class="pre">one</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">following</span> <span class="pre">codes:\\n</span>&#160;&#160; <span class="pre">-</span> <span class="pre">PROCESSING:</span> <span class="pre">At</span> <span class="pre">least</span> <span class="pre">one</span> <span class="pre">checkpoint</span> <span class="pre">is</span> <span class="pre">in</span> <span class="pre">progress</span> <span class="pre">or</span> <span class="pre">completed,</span> <span class="pre">but</span> <span class="pre">not</span> <span class="pre">all</span> <span class="pre">are</span> <span class="pre">completed.\\n</span>&#160;&#160; <span class="pre">-</span> <span class="pre">COMPLETED:</span> <span class="pre">All</span> <span class="pre">checkpoints</span> <span class="pre">are</span> <span class="pre">completed.\\n</span>&#160;&#160; <span class="pre">-</span> <span class="pre">NOT_STARTED:</span> <span class="pre">No</span> <span class="pre">checkpoints</span> <span class="pre">have</span> <span class="pre">been</span> <span class="pre">started.\\n</span>&#160;&#160; <span class="pre">-</span> <span class="pre">UNRELATED:</span> <span class="pre">The</span> <span class="pre">current</span> <span class="pre">image</span> <span class="pre">reflects</span> <span class="pre">a</span> <span class="pre">different</span> <span class="pre">step</span> <span class="pre">or</span> <span class="pre">an</span> <span class="pre">unrelated</span> <span class="pre">action.\\n\\nEnsure</span> <span class="pre">that</span> <span class="pre">your</span> <span class="pre">analysis</span> <span class="pre">for</span> <span class="pre">each</span> <span class="pre">checkpoint</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">overall</span> <span class="pre">step</span> <span class="pre">is</span> <span class="pre">thorough</span> <span class="pre">and</span> <span class="pre">based</span> <span class="pre">on</span> <span class="pre">specific</span> <span class="pre">visual</span> <span class="pre">evidence</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">image.\\n',</span> <span class="pre">stream_map={}</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ptgctl_pipeline.pipelines.html#ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.GPT4VPipeline" title="ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.gpt4v_pipeline.GPT4VPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">GPT4VPipeline</span></code></a></p>
+<p>A pipeline for predicting task checkpoint progress using GPT-4V and visual input.</p>
+<p>This pipeline:
+- Listens for task step descriptions (current and next).
+- Waits for a trigger to process the current image stream.
+- Sends concatenated visual input and task prompts to GPT-4V.
+- Parses and outputs checkpoint-level status predictions.</p>
+<dl class="simple">
+<dt>Input Streams:</dt><dd><ul class="simple">
+<li><p>‘main’: Visual input stream (inherited from GPT4VPipeline)</p></li>
+<li><p>‘intent:task:step:current’: Description and checkpoints for current step</p></li>
+<li><p>‘intent:task:step:next’: Description for next step (optional)</p></li>
+</ul>
+</dd>
+<dt>Trigger Stream:</dt><dd><ul class="simple">
+<li><p>‘intent:trigger:action’: Initiates prediction on demand</p></li>
+</ul>
+</dd>
+<dt>Output Stream:</dt><dd><ul class="simple">
+<li><p>‘intent:pred:step:checkpoints’: JSON with status prediction for each checkpoint</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.INPUT_IMAGE_STREAM_NAME">
+<span class="sig-name descname"><span class="pre">INPUT_IMAGE_STREAM_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'main'</span></em><a class="headerlink" href="#pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.INPUT_IMAGE_STREAM_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.OUTPUT_STREAM_NAME">
+<span class="sig-name descname"><span class="pre">OUTPUT_STREAM_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'intent:pred:step:checkpoints'</span></em><a class="headerlink" href="#pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.OUTPUT_STREAM_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.TRIGGER_STREAM_NAME">
+<span class="sig-name descname"><span class="pre">TRIGGER_STREAM_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'intent:trigger:action'</span></em><a class="headerlink" href="#pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.TRIGGER_STREAM_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.on_input_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_input_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.on_input_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle input stream updates for task steps and image triggers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> – Input data message.</p></li>
+<li><p><strong>sid</strong> – Stream identifier.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.on_trigger_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_trigger_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_action_pipeline.GPTActionPredictionPipeline.on_trigger_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggered to process image and generate GPT-4V prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> – Unused trigger message.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of predictions or None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipelines.task.gpt_action_pipeline.parse_result">
+<span class="sig-prename descclassname"><span class="pre">pipelines.task.gpt_action_pipeline.</span></span><span class="sig-name descname"><span class="pre">parse_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.gpt_action_pipeline.parse_result" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse GPT-4V JSON output into simplified format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result_string</strong> – Raw JSON string from GPT response.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed dictionary or None on failure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pipelines.task.task_planner_pipeline">
+<span id="task-planner-pipeline"></span><h2>Task Planner Pipeline<a class="headerlink" href="#module-pipelines.task.task_planner_pipeline" title="Permalink to this heading">¶</a></h2>
+<p>Task Planner Pipeline</p>
+<p>Generates a task plan from egocentric image input using GPT-4V.</p>
+<p>This pipeline infers a structured task plan—including high-level goals, step content,
+checkpoints, and required objects—by sending visual context to GPT-4V and parsing the
+resulting XML-formatted response.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.task.task_planner_pipeline.</span></span><span class="sig-name descname"><span class="pre">TaskPlannerPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system_prompt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'You</span> <span class="pre">are</span> <span class="pre">an</span> <span class="pre">intelligent</span> <span class="pre">task</span> <span class="pre">planner.</span> <span class="pre">Your</span> <span class="pre">job</span> <span class="pre">is</span> <span class="pre">to</span> <span class="pre">break</span> <span class="pre">down</span> <span class="pre">a</span> <span class="pre">given</span> <span class="pre">task</span> <span class="pre">into</span> <span class="pre">structured</span> <span class="pre">steps</span> <span class="pre">and</span> <span class="pre">checkpoints</span> <span class="pre">that</span> <span class="pre">an</span> <span class="pre">AR</span> <span class="pre">assistant</span> <span class="pre">can</span> <span class="pre">use</span> <span class="pre">for</span> <span class="pre">guiding</span> <span class="pre">a</span> <span class="pre">user.</span> <span class="pre">Each</span> <span class="pre">step</span> <span class="pre">must</span> <span class="pre">have</span> <span class="pre">clear</span> <span class="pre">instructions</span> <span class="pre">and</span> <span class="pre">checkpoints,</span> <span class="pre">with</span> <span class="pre">each</span> <span class="pre">checkpoint</span> <span class="pre">designed</span> <span class="pre">to</span> <span class="pre">verify</span> <span class="pre">the</span> <span class="pre">completion</span> <span class="pre">of</span> <span class="pre">a</span> <span class="pre">sub-task.</span> <span class="pre">For</span> <span class="pre">each</span> <span class="pre">checkpoint,</span> <span class="pre">generate</span> <span class="pre">a</span> <span class="pre">specific</span> <span class="pre">question</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">used</span> <span class="pre">by</span> <span class="pre">a</span> <span class="pre">vision-language</span> <span class="pre">model</span> <span class="pre">(such</span> <span class="pre">as</span> <span class="pre">BLIP)</span> <span class="pre">to</span> <span class="pre">confirm</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">checkpoint</span> <span class="pre">is</span> <span class="pre">completed.\\n\\nAdditionally,</span> <span class="pre">you</span> <span class="pre">need</span> <span class="pre">to</span> <span class="pre">provide</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">&quot;StepStatusCheckPrompts&quot;</span> <span class="pre">for</span> <span class="pre">each</span> <span class="pre">step.</span> <span class="pre">These</span> <span class="pre">prompts</span> <span class="pre">should</span> <span class="pre">help</span> <span class="pre">the</span> <span class="pre">BLIP</span> <span class="pre">model</span> <span class="pre">verify</span> <span class="pre">whether</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">is</span> <span class="pre">currently</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">correct</span> <span class="pre">step.</span> <span class="pre">Consider</span> <span class="pre">that</span> <span class="pre">the</span> <span class="pre">BLIP</span> <span class="pre">model</span> <span class="pre">can</span> <span class="pre">only</span> <span class="pre">access</span> <span class="pre">static</span> <span class="pre">visual</span> <span class="pre">information,</span> <span class="pre">so</span> <span class="pre">the</span> <span class="pre">prompts</span> <span class="pre">should</span> <span class="pre">be</span> <span class="pre">carefully</span> <span class="pre">written</span> <span class="pre">to</span> <span class="pre">focus</span> <span class="pre">on</span> <span class="pre">visual</span> <span class="pre">cues</span> <span class="pre">and</span> <span class="pre">context.</span> <span class="pre">If</span> <span class="pre">at</span> <span class="pre">least</span> <span class="pre">50%</span> <span class="pre">of</span> <span class="pre">these</span> <span class="pre">checks</span> <span class="pre">succeed,</span> <span class="pre">the</span> <span class="pre">system</span> <span class="pre">will</span> <span class="pre">infer</span> <span class="pre">that</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">is</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">correct</span> <span class="pre">step.\\n\\nAlso,</span> <span class="pre">list</span> <span class="pre">all</span> <span class="pre">the</span> <span class="pre">objects</span> <span class="pre">involved</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">task.\\n\\nOutput</span> <span class="pre">the</span> <span class="pre">task</span> <span class="pre">plan</span> <span class="pre">in</span> <span class="pre">XML</span> <span class="pre">format</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">following</span> <span class="pre">structure.</span> <span class="pre">Please</span> <span class="pre">provide</span> <span class="pre">the</span> <span class="pre">output</span> <span class="pre">in</span> <span class="pre">plain</span> <span class="pre">text</span> <span class="pre">without</span> <span class="pre">any</span> <span class="pre">code</span> <span class="pre">formatting</span> <span class="pre">or</span> <span class="pre">language</span> <span class="pre">hints:\\n\\n</span>&#160; <span class="pre">\\n&lt;TaskPlan&gt;\\n</span>&#160; <span class="pre">&lt;DesiredTask&gt;Your</span> <span class="pre">task</span> <span class="pre">name</span> <span class="pre">here&lt;/DesiredTask&gt;\\n</span>&#160; <span class="pre">&lt;Steps&gt;\\n</span>&#160;&#160;&#160; <span class="pre">&lt;Step</span> <span class="pre">isStart=&quot;true/false&quot;&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;StepContent&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">Measure</span> <span class="pre">11</span> <span class="pre">grams</span> <span class="pre">of</span> <span class="pre">coffee</span> <span class="pre">beans,</span> <span class="pre">grind</span> <span class="pre">them</span> <span class="pre">into</span> <span class="pre">powder</span> <span class="pre">using</span> <span class="pre">a</span> <span class="pre">grinder\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;/StepContent&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;StepStatusCheckPrompts&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;Prompt&gt;First</span> <span class="pre">prompt</span> <span class="pre">to</span> <span class="pre">check</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">is</span> <span class="pre">currently</span> <span class="pre">in</span> <span class="pre">this</span> <span class="pre">step&lt;/Prompt&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;Prompt&gt;Second</span> <span class="pre">prompt</span> <span class="pre">to</span> <span class="pre">check</span> <span class="pre">if</span> <span class="pre">the</span> <span class="pre">user</span> <span class="pre">is</span> <span class="pre">currently</span> <span class="pre">in</span> <span class="pre">this</span> <span class="pre">step&lt;/Prompt&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;!--</span> <span class="pre">Repeat</span> <span class="pre">for</span> <span class="pre">additional</span> <span class="pre">prompts</span> <span class="pre">--&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;/StepStatusCheckPrompts&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;Checkpoints&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;Checkpoint&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;Instruction&gt;Step</span> <span class="pre">instruction</span> <span class="pre">here&lt;/Instruction&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;BlipPrompt&gt;Prompt</span> <span class="pre">for</span> <span class="pre">BLIP</span> <span class="pre">model</span> <span class="pre">here&lt;/BlipPrompt&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;/Checkpoint&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;!--</span> <span class="pre">Repeat</span> <span class="pre">for</span> <span class="pre">additional</span> <span class="pre">checkpoints</span> <span class="pre">--&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;/Checkpoints&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;/Step&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;!--</span> <span class="pre">Repeat</span> <span class="pre">for</span> <span class="pre">additional</span> <span class="pre">steps</span> <span class="pre">--&gt;\\n</span>&#160;&#160;&#160; <span class="pre">&lt;/Steps&gt;\\n</span>&#160;&#160;&#160; <span class="pre">&lt;Objects&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;Object&gt;Object</span> <span class="pre">name</span> <span class="pre">here&lt;/Object&gt;\\n</span>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">&lt;!--</span> <span class="pre">Repeat</span> <span class="pre">for</span> <span class="pre">additional</span> <span class="pre">objects</span> <span class="pre">--&gt;\\n</span>&#160;&#160;&#160; <span class="pre">&lt;/Objects&gt;\\n&lt;/TaskPlan&gt;\\n'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ptgctl_pipeline.pipelines.html#ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.GPT4VPipeline" title="ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.gpt4v_pipeline.GPT4VPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">GPT4VPipeline</span></code></a></p>
+<p>A pipeline for planning multistep tasks from visual input using GPT-4V.</p>
+<p>This pipeline:
+- Takes egocentric image frames as input
+- Triggers task planning on demand
+- Sends the image to GPT-4V with a predefined prompt
+- Parses the XML response into a structured task plan</p>
+<dl class="simple">
+<dt>Input Stream:</dt><dd><ul class="simple">
+<li><p>‘main’: Holoframe image stream</p></li>
+</ul>
+</dd>
+<dt>Trigger Stream:</dt><dd><ul class="simple">
+<li><p>‘intent:trigger-planner’: Activates task planning logic</p></li>
+</ul>
+</dd>
+<dt>Output Stream:</dt><dd><ul class="simple">
+<li><p>‘intent:task_plan’: Structured JSON of the generated task plan</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline.IMAGE_INPUT_STREAM_NAME">
+<span class="sig-name descname"><span class="pre">IMAGE_INPUT_STREAM_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'main'</span></em><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline.IMAGE_INPUT_STREAM_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline.OUTPUT_STREAM">
+<span class="sig-name descname"><span class="pre">OUTPUT_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'intent:task_plan'</span></em><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline.OUTPUT_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline.TRIGGER_STREAM">
+<span class="sig-name descname"><span class="pre">TRIGGER_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'intent:trigger-planner'</span></em><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline.TRIGGER_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline.get_prompt_message">
+<span class="sig-name descname"><span class="pre">get_prompt_message</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline.get_prompt_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a simple placeholder prompt for debugging or fallback.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Default text message for prompt logic (usually unused in favor of system prompt).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline.on_input_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_input_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline.on_input_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle incoming image stream data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>dict</em>) – Image data.</p></li>
+<li><p><strong>sid</strong> (<em>str</em>) – Stream identifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None. Sets internal state to prepare for future trigger.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline.on_trigger_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_trigger_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline.on_trigger_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger handler for running the task planning logic.</p>
+<dl class="simple">
+<dt>Steps:</dt><dd><ul class="simple">
+<li><p>Resize the current image buffer</p></li>
+<li><p>Send it to GPT-4V with system prompt</p></li>
+<li><p>Parse response into structured task plan</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – Trigger message (not used).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed task plan dictionary, or None if no image is available.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.TaskPlannerPipeline.postprocess">
+<span class="sig-name descname"><span class="pre">postprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_planner_pipeline.TaskPlannerPipeline.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Postprocess GPT-4V response to extract task plan in dictionary form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>result</strong> (<em>str</em>) – Raw XML response from GPT.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Parsed task plan containing:</dt><dd><ul class="simple">
+<li><p>desired_task: The goal of the task</p></li>
+<li><p>steps: List of step dicts with checkpoints and status prompts</p></li>
+<li><p>objects: List of required object names</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipelines.task.task_planner_pipeline.parse_xml_to_dict">
+<span class="sig-prename descclassname"><span class="pre">pipelines.task.task_planner_pipeline.</span></span><span class="sig-name descname"><span class="pre">parse_xml_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.task_planner_pipeline.parse_xml_to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert XML-formatted task plan into a structured dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xml_data</strong> (<em>str</em>) – XML string from GPT-4V.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Parsed task plan with fields:</dt><dd><ul class="simple">
+<li><p>’desired_task’: High-level task name</p></li>
+<li><dl class="simple">
+<dt>’steps’: List of steps, each with:</dt><dd><ul>
+<li><p>is_start: Whether it’s the first step</p></li>
+<li><p>content: Step-level instruction</p></li>
+<li><p>checkpoints: Instruction + blip prompt pairs</p></li>
+<li><p>step_check_prompts: List of prompts for checking step completion</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>’objects’: List of relevant objects</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pipelines.task.step_checkpoint_pipeline">
+<span id="step-checkpoint-pipeline"></span><h2>Step Checkpoint Pipeline<a class="headerlink" href="#module-pipelines.task.step_checkpoint_pipeline" title="Permalink to this heading">¶</a></h2>
+<p>Step Checkpoint Test Pipeline</p>
+<p>This pipeline evaluates whether checkpoints in the current task step have been completed
+based on image frames. It uses a BLIP-based vision-language model to verify whether each
+checkpoint or step prompt condition is met.</p>
+<p>Each task step may have multiple checkpoints and one or more high-level step-check prompts.
+This pipeline processes the most recent frame (or all frames in video mode) and generates
+a fuzzy evaluation of progress.</p>
+<p>Outputs include:
+- Binary values (0 or 1) for each checkpoint.
+- A fuzzy scalar indicating progress toward completing the entire step.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.task.step_checkpoint_pipeline.</span></span><span class="sig-name descname"><span class="pre">StepCheckpointTestPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ptgctl_pipeline.pipelines.html#ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.FramePipeline" title="ptgctl_pipeline.ptgctl_pipeline.pipeline.examples.frame_pipeline.FramePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">FramePipeline</span></code></a></p>
+<p>Pipeline for evaluating the completion status of task step checkpoints using visual input.</p>
+<p>Uses:
+- Egocentric video or image input
+- BLIP model inference on checkpoint and step-check prompts</p>
+<p>Produces:
+- List of binary checkpoint completion values (1 if completed, else 0)
+- Scalar score for overall step completion (in_step)</p>
+<dl class="simple">
+<dt>Input Streams:</dt><dd><ul class="simple">
+<li><p>‘main’: Visual image stream</p></li>
+<li><p>‘intent:task:step:current’: JSON describing current step and its prompts</p></li>
+</ul>
+</dd>
+<dt>Trigger Streams:</dt><dd><ul class="simple">
+<li><p>‘intent:task:step:checkpoints’: Dummy trigger for compatibility</p></li>
+<li><p>‘intent:trigger:checkpoint_tester’: Triggers execution of the checkpoint checker</p></li>
+</ul>
+</dd>
+<dt>Output Stream:</dt><dd><ul class="simple">
+<li><p>‘intent:pred:step:checkpoints’: Result with fuzzy evaluation of step progress</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline.on_input_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_input_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline.on_input_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles input messages for task step data and frames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>dict</em>) – Incoming message, usually an image or step JSON.</p></li>
+<li><p><strong>sid</strong> (<em>str</em>) – Stream identifier.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Sets:</dt><dd><ul class="simple">
+<li><p>current_step: Internal record of the current task step</p></li>
+<li><p>initialized: Marks readiness for running checkpoint evaluation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline.on_trigger_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_trigger_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline.on_trigger_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trigger handler to run the checkpoint evaluator.</p>
+<p>Captures buffered frames and evaluates against current step prompts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – Trigger message (unused).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Result dictionary from <cite>run_step_check</cite>, or None if no step is set.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline.run_step_check">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_step_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">valid_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.task.step_checkpoint_pipeline.StepCheckpointTestPipeline.run_step_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run BLIP-based evaluation to check completion of checkpoints and overall step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>valid_frames</strong> (<em>list</em>) – List of buffered image frames.</p></li>
+<li><p><strong>current_step</strong> (<em>dict</em>) – Step information with checkpoints and status prompts.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary with:</dt><dd><ul class="simple">
+<li><p>checkpoint_predictions: list of 0.0 or 1.0 for each checkpoint</p></li>
+<li><p>in_step: fuzzy scalar for whether the step is considered in progress</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Satori</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configs/index.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pipelines.html">Pipelines</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pipelines.frame_selector.html">Frame Selector Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipelines.render.html">Render</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Guidance Pipelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipelines.task.task_control_pipeline">Task Control Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipelines.task.gpt_guidance_pipeline">GPT Guidance Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipelines.task.gpt_action_pipeline">GPT Action Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipelines.task.task_planner_pipeline">Task Planner Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipelines.task.step_checkpoint_pipeline">Step Checkpoint Pipeline</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pipelines.html">Pipelines</a><ul>
+      <li>Previous: <a href="pipelines.render.html" title="previous chapter">Render</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, VIDA-NYU.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/pipelines.task_planner.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

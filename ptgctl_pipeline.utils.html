@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Request Utilities &#8212; Satori v0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=4c0d86c8"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="canonical" href="https://VIDA-NYU.github.io/satori-assistance/ptgctl_pipeline.utils.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Pipelines" href="pipelines.html" />
+    <link rel="prev" title="Logger Module" href="ptgctl_pipeline.logger.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="request-utilities">
+<h1>Request Utilities<a class="headerlink" href="#request-utilities" title="Permalink to this heading">¶</a></h1>
+<p>This module provides utility functions for stream request automation and process management
+in the Satori pipeline system. It is primarily used for repeatedly triggering pipeline input
+through background HTTP POST requests.</p>
+<p>It includes:</p>
+<ul class="simple">
+<li><p>A <cite>ProcessManager</cite> class to handle background workers using <cite>multiprocessing</cite></p></li>
+<li><p>A <cite>parse_tms</cite> function for extracting timestamps from stream metadata</p></li>
+</ul>
+<section id="module-ptgctl_pipeline.ptgctl_pipeline.utils.request">
+<span id="components"></span><h2>Components<a class="headerlink" href="#module-ptgctl_pipeline.ptgctl_pipeline.utils.request" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.utils.request.</span></span><span class="sig-name descname"><span class="pre">ProcessManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">headers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages a background process that sends repeated POST requests.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.headers">
+<span class="sig-name descname"><span class="pre">headers</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authorization or content headers to include in requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.processes">
+<span class="sig-name descname"><span class="pre">processes</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.processes" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of active multiprocessing.Process instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.send_post_requests">
+<span class="sig-name descname"><span class="pre">send_post_requests</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.send_post_requests" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a POST request to the given URL at regular intervals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – The endpoint to which requests are sent.</p></li>
+<li><p><strong>interval</strong> (<em>int</em>) – Number of seconds to wait between requests.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.signal_handler">
+<span class="sig-name descname"><span class="pre">signal_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.signal_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gracefully terminates all background processes on interrupt.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.start_process">
+<span class="sig-name descname"><span class="pre">start_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.utils.request.ProcessManager.start_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launches a new process to begin sending repeated POST requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> (<em>str</em>) – Endpoint to post to.</p></li>
+<li><p><strong>interval</strong> (<em>int</em>) – Frequency in seconds.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ptgctl_pipeline.ptgctl_pipeline.utils.time"></span><dl class="py function">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.utils.time.parse_tms">
+<span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.utils.time.</span></span><span class="sig-name descname"><span class="pre">parse_tms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.utils.time.parse_tms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract timestamp integer from a dash-separated string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>raw_value</strong> (<em>str</em>) – A string in the format “&lt;timestamp&gt;-…”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Parsed timestamp value.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Satori</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configs/index.html">Configuration Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.pipelines.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.codec.html">Codecs Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.logger.html">Logger Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Request Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-ptgctl_pipeline.ptgctl_pipeline.utils.request">Components</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Pipelines</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a><ul>
+      <li>Previous: <a href="ptgctl_pipeline.logger.html" title="previous chapter">Logger Module</a></li>
+      <li>Next: <a href="pipelines.html" title="next chapter">Pipelines</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, VIDA-NYU.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/ptgctl_pipeline.utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

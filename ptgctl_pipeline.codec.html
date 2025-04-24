@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Codecs Module &#8212; Satori v0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=4c0d86c8"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="canonical" href="https://VIDA-NYU.github.io/satori-assistance/ptgctl_pipeline.codec.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Logger Module" href="ptgctl_pipeline.logger.html" />
+    <link rel="prev" title="Pipeline" href="ptgctl_pipeline.pipelines.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="codecs-module">
+<h1>Codecs Module<a class="headerlink" href="#codecs-module" title="Permalink to this heading">¶</a></h1>
+<p>This module provides a collection of data codecs used for serializing and deserializing stream data in the Satori pipeline system. Each codec implements a common interface defined in <cite>BaseCodec</cite>, enabling consistent usage across all streams.</p>
+<section id="module-ptgctl_pipeline.ptgctl_pipeline.codec.base">
+<span id="available-codecs"></span><h2>Available Codecs<a class="headerlink" href="#module-ptgctl_pipeline.ptgctl_pipeline.codec.base" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.codec.base.</span></span><span class="sig-name descname"><span class="pre">BaseCodec</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for encoding and decoding stream data.</p>
+<p>Subclasses must implement <cite>encode</cite> and <cite>decode</cite> class methods to define
+how stream data should be serialized and deserialized.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec.decode">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode the input data back into its original format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Any</em>) – Encoded data received from a stream.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decoded original data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec.encode">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode the given data into bytes or a serializable format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Any</em>) – The raw input data to encode.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Encoded representation suitable for transmission or storage.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ptgctl_pipeline.ptgctl_pipeline.codec.string_codec"></span><dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.string_codec.StringCodec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.codec.string_codec.</span></span><span class="sig-name descname"><span class="pre">StringCodec</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.string_codec.StringCodec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec" title="ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCodec</span></code></a></p>
+<p>Codec for UTF-8 string encoding and decoding.</p>
+<p>Converts between Python strings and UTF-8 encoded byte strings.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.string_codec.StringCodec.decode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.string_codec.StringCodec.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode UTF-8 bytes into a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – UTF-8 encoded byte string.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decoded string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.string_codec.StringCodec.encode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.string_codec.StringCodec.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode a string into UTF-8 bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>str</em>) – Input string to encode.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>UTF-8 encoded byte string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ptgctl_pipeline.ptgctl_pipeline.codec.bytes"></span><dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.bytes.BytesCodec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.codec.bytes.</span></span><span class="sig-name descname"><span class="pre">BytesCodec</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.bytes.BytesCodec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec" title="ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCodec</span></code></a></p>
+<p>A pass-through codec that returns data unchanged.</p>
+<p>This is useful for raw byte streams or when encoding/decoding is unnecessary.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.bytes.BytesCodec.decode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.bytes.BytesCodec.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the data unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Any</em>) – Encoded data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Same as input.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.bytes.BytesCodec.encode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.bytes.BytesCodec.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the data unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>Any</em>) – Input data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Same as input.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ptgctl_pipeline.ptgctl_pipeline.codec.json_codec"></span><dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.json_codec.JsonCodec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.codec.json_codec.</span></span><span class="sig-name descname"><span class="pre">JsonCodec</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.json_codec.JsonCodec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec" title="ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCodec</span></code></a></p>
+<p>Codec for encoding and decoding JSON-serializable data.</p>
+<p>Encodes Python data structures into UTF-8 JSON bytes and decodes
+JSON byte strings back into Python objects.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.json_codec.JsonCodec.decode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.json_codec.JsonCodec.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode UTF-8 encoded JSON bytes into a Python object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>buffer</strong> (<em>bytes</em>) – Encoded JSON byte string.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decoded Python object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.json_codec.JsonCodec.encode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buffer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.json_codec.JsonCodec.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode Python object to UTF-8 encoded JSON bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>buffer</strong> (<em>Any</em>) – A JSON-serializable Python object.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>UTF-8 encoded JSON.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec"></span><dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec.HoloframeCodec">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec.</span></span><span class="sig-name descname"><span class="pre">HoloframeCodec</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec.HoloframeCodec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec" title="ptgctl_pipeline.ptgctl_pipeline.codec.base.BaseCodec"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseCodec</span></code></a></p>
+<p>Codec for encoding and decoding data using ptgctl’s holoframe format.</p>
+<p>This codec is suitable for structured sensor/frame data requiring
+serialization through the holoframe protocol.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec.HoloframeCodec.decode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec.HoloframeCodec.decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decode data from holoframe format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>bytes</em>) – Encoded byte stream.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Decoded structured data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec.HoloframeCodec.encode">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.codec.holoframe_codec.HoloframeCodec.encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encode data into holoframe v3 format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>Any</em>) – Structured input data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Encoded holoframe byte stream.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Satori</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configs/index.html">Configuration Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.pipelines.html">Pipeline</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Codecs Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-ptgctl_pipeline.ptgctl_pipeline.codec.base">Available Codecs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.logger.html">Logger Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.utils.html">Request Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Pipelines</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a><ul>
+      <li>Previous: <a href="ptgctl_pipeline.pipelines.html" title="previous chapter">Pipeline</a></li>
+      <li>Next: <a href="ptgctl_pipeline.logger.html" title="next chapter">Logger Module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, VIDA-NYU.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/ptgctl_pipeline.codec.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

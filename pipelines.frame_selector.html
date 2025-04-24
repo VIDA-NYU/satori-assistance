@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Frame Selector Pipeline &#8212; Satori v0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=4c0d86c8"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="canonical" href="https://VIDA-NYU.github.io/satori-assistance/pipelines.frame_selector.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Render" href="pipelines.render.html" />
+    <link rel="prev" title="Pipelines" href="pipelines.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="frame-selector-pipeline">
+<h1>Frame Selector Pipeline<a class="headerlink" href="#frame-selector-pipeline" title="Permalink to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">frame_selector</span></code> module implements video frame selection mechanisms for AR task guidance systems. It provides pipelines and classifiers to select informative frames from a video stream.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
+<p>This module includes:</p>
+<ul class="simple">
+<li><p>A frame selection pipeline that consumes raw video streams and outputs filtered frames</p></li>
+<li><p>A module that performs visual object-based keyframe selection using OWL-ViT and KNN clustering</p></li>
+<li><p>A scene classifier using CLIP to detect relevant task contexts</p></li>
+</ul>
+</section>
+<section id="module-pipelines.frame_selector.pipeline">
+<span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-pipelines.frame_selector.pipeline" title="Permalink to this heading">¶</a></h2>
+<p>Frame Selector Pipeline</p>
+<p>This module defines a Satori pipeline for filtering and selecting frames
+based on visual scene classification. It uses a <cite>MultiSceneClassificationModule</cite>
+to determine which frames are informative, skipping over unhelpful or redundant ones.</p>
+<p>Author: VIDA NYU</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.frame_selector.pipeline.FrameSelectorPipeline">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.frame_selector.pipeline.</span></span><span class="sig-name descname"><span class="pre">FrameSelectorPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stream_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.pipeline.FrameSelectorPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ptgctl_pipeline.pipelines.html#ptgctl_pipeline.ptgctl_pipeline.pipeline.base.BasePipeline" title="ptgctl_pipeline.ptgctl_pipeline.pipeline.base.BasePipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePipeline</span></code></a></p>
+<p>A pipeline that filters input video frames using a scene classification model.</p>
+<dl class="simple">
+<dt><strong>Streams</strong>:</dt><dd><ul class="simple">
+<li><p>Input: <code class="docutils literal notranslate"><span class="pre">main</span></code> (HoloframeCodec) – receives incoming video frames.</p></li>
+<li><p>Trigger: <code class="docutils literal notranslate"><span class="pre">main</span></code> (HoloframeCodec) – triggers the filtering process.</p></li>
+<li><p>Output: <code class="docutils literal notranslate"><span class="pre">processed_main</span></code> (HoloframeCodec) – publishes selected valid frames.</p></li>
+</ul>
+</dd>
+</dl>
+<p>This pipeline is designed to ignore uninformative frames and reduce processing load.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.frame_selector.pipeline.FrameSelectorPipeline.IMAGE_INPUT_STREAM_NAME">
+<span class="sig-name descname"><span class="pre">IMAGE_INPUT_STREAM_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'main'</span></em><a class="headerlink" href="#pipelines.frame_selector.pipeline.FrameSelectorPipeline.IMAGE_INPUT_STREAM_NAME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.frame_selector.pipeline.FrameSelectorPipeline.OUTPUT_STREAM">
+<span class="sig-name descname"><span class="pre">OUTPUT_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processed_main'</span></em><a class="headerlink" href="#pipelines.frame_selector.pipeline.FrameSelectorPipeline.OUTPUT_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipelines.frame_selector.pipeline.FrameSelectorPipeline.TRIGGER_STREAM">
+<span class="sig-name descname"><span class="pre">TRIGGER_STREAM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'main'</span></em><a class="headerlink" href="#pipelines.frame_selector.pipeline.FrameSelectorPipeline.TRIGGER_STREAM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.pipeline.FrameSelectorPipeline.on_input_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_input_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.pipeline.FrameSelectorPipeline.on_input_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles new input frames from the input stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<em>dict</em>) – A dictionary containing the frame data (expects a key ‘image’).</p></li>
+<li><p><strong>sid</strong> (<em>str</em>) – The stream ID from which the message originates.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.pipeline.FrameSelectorPipeline.on_trigger_stream">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">on_trigger_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.pipeline.FrameSelectorPipeline.on_trigger_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the frame filtering logic when triggered.</p>
+<p>If the frame passes the scene classifier, it is returned as valid output.
+Otherwise, the function increments an internal counter and returns None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>dict</em>) – A dictionary containing the trigger frame (expects a key ‘image’).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A valid frame if accepted by the filter, otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-pipelines.frame_selector.module"></span><p>Frame Selector Module</p>
+<p>Provides frame selection functionality based on object detection and visual similarity.
+Encapsulates logic for buffering frames, detecting valid objects, extracting features,
+and selecting keyframes using KNN clustering.</p>
+<p>Author: Guande Wu</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.frame_selector.module.</span></span><span class="sig-name descname"><span class="pre">FrameSelectorModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_valid_objects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Selects informative frames using object detection and KNN-based feature clustering.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.detect_objects">
+<span class="sig-name descname"><span class="pre">detect_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.detect_objects" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.extract_features">
+<span class="sig-name descname"><span class="pre">extract_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.extract_features" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.fetch_frames">
+<span class="sig-name descname"><span class="pre">fetch_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.fetch_frames" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.fetch_latest_frames">
+<span class="sig-name descname"><span class="pre">fetch_latest_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.fetch_latest_frames" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.fetch_valid_frames">
+<span class="sig-name descname"><span class="pre">fetch_valid_frames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.fetch_valid_frames" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.filter_frame">
+<span class="sig-name descname"><span class="pre">filter_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.filter_frame" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.filter_frames">
+<span class="sig-name descname"><span class="pre">filter_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.filter_frames" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type">(<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>])</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.perform_knn_inference">
+<span class="sig-name descname"><span class="pre">perform_knn_inference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.perform_knn_inference" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.process_frame">
+<span class="sig-name descname"><span class="pre">process_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.process_frame" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.process_frame_selection">
+<span class="sig-name descname"><span class="pre">process_frame_selection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.process_frame_selection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.save_selected_frames">
+<span class="sig-name descname"><span class="pre">save_selected_frames</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_frames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'selected_frames'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.save_selected_frames" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.send_to_output_stream">
+<span class="sig-name descname"><span class="pre">send_to_output_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_frames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.send_to_output_stream" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.set_valid_objects">
+<span class="sig-name descname"><span class="pre">set_valid_objects</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_valid_objects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.set_valid_objects" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.FrameSelectorModule.update_knn_model">
+<span class="sig-name descname"><span class="pre">update_knn_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame_features</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.FrameSelectorModule.update_knn_model" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">NearestNeighbors</span></code>]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipelines.frame_selector.module.select_k_evenly">
+<span class="sig-prename descclassname"><span class="pre">pipelines.frame_selector.module.</span></span><span class="sig-name descname"><span class="pre">select_k_evenly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.module.select_k_evenly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects k elements evenly distributed from the input list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> (<em>List</em>) – List of items.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Number of elements to select.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Subset of <cite>arr</cite> with k evenly spaced elements.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<span class="target" id="module-pipelines.frame_selector.multi_scene"></span><p>Multi-Scene Classification Module</p>
+<p>Classifies input frames into one of several task-specific scenes using a CLIP model.
+This module is used to filter out irrelevant frames and detect relevant task contexts.</p>
+<p>Author: Guande Wu</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipelines.frame_selector.multi_scene.MultiSceneClassificationModule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipelines.frame_selector.multi_scene.</span></span><span class="sig-name descname"><span class="pre">MultiSceneClassificationModule</span></span><a class="headerlink" href="#pipelines.frame_selector.multi_scene.MultiSceneClassificationModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Scene classification using OpenAI CLIP for detecting relevant task-related scenes.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.multi_scene.MultiSceneClassificationModule.classify_image">
+<span class="sig-name descname"><span class="pre">classify_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.multi_scene.MultiSceneClassificationModule.classify_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Classifies the input image into one of the predefined scenes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image</strong> (<em>PIL.Image</em><em> or </em><em>np.ndarray</em>) – Input image (PIL or numpy array).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of tuples (scene, probability).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipelines.frame_selector.multi_scene.MultiSceneClassificationModule.filter_frame">
+<span class="sig-name descname"><span class="pre">filter_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipelines.frame_selector.multi_scene.MultiSceneClassificationModule.filter_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters the frame based on whether it is a relevant scene.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frame</strong> (<em>PIL.Image</em><em> or </em><em>np.ndarray</em>) – Input frame.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Probability threshold to consider a scene as relevant.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the frame is relevant; False if it’s unrelated.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Satori</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configs/index.html">Configuration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="pipelines.html">Pipelines</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Frame Selector Pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipelines.frame_selector.pipeline">Module Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pipelines.render.html">Render</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipelines.task_planner.html">Guidance Pipelines</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="pipelines.html">Pipelines</a><ul>
+      <li>Previous: <a href="pipelines.html" title="previous chapter">Pipelines</a></li>
+      <li>Next: <a href="pipelines.render.html" title="next chapter">Render</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, VIDA-NYU.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/pipelines.frame_selector.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

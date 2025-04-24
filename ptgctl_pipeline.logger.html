@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Logger Module &#8212; Satori v0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=4c0d86c8"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="canonical" href="https://VIDA-NYU.github.io/satori-assistance/ptgctl_pipeline.logger.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Request Utilities" href="ptgctl_pipeline.utils.html" />
+    <link rel="prev" title="Codecs Module" href="ptgctl_pipeline.codec.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="logger-module">
+<h1>Logger Module<a class="headerlink" href="#logger-module" title="Permalink to this heading">¶</a></h1>
+<p>The <cite>logger</cite> module provides a lightweight, structured logging system for the Satori pipeline framework.
+It supports multiple logging levels, customizable time formatting, and flexible output targets
+including console, plain text files, and structured JSON files.</p>
+<section id="module-ptgctl_pipeline.ptgctl_pipeline.logger.types">
+<span id="components"></span><h2>Components<a class="headerlink" href="#module-ptgctl_pipeline.ptgctl_pipeline.logger.types" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.types.</span></span><span class="sig-name descname"><span class="pre">LogLevel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum representing log severity levels.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.CRITICAL">
+<span class="sig-name descname"><span class="pre">CRITICAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.CRITICAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.DEBUG">
+<span class="sig-name descname"><span class="pre">DEBUG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.INFO">
+<span class="sig-name descname"><span class="pre">INFO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.INFO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.WARNING">
+<span class="sig-name descname"><span class="pre">WARNING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel.WARNING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.types.</span></span><span class="sig-name descname"><span class="pre">LogMessage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra=&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data structure representing a single log message.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.level">
+<span class="sig-name descname"><span class="pre">level</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Severity level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel" title="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel">LogLevel</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.message">
+<span class="sig-name descname"><span class="pre">message</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main log message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.sender">
+<span class="sig-name descname"><span class="pre">sender</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.sender" title="Permalink to this definition">¶</a></dt>
+<dd><p>Component name generating the log.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.timestamp">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timestamp in UTC (default: now).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.extra">
+<span class="sig-name descname"><span class="pre">extra</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.extra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Additional metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">extra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">]</span></em><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">level</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel" title="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogLevel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogLevel</span></code></a></em><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">sender</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></em><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.LogMessage.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the log message to a serializable dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary representation of the log message.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.TimeFormatter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.types.</span></span><span class="sig-name descname"><span class="pre">TimeFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M:%S'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timezone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.TimeFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Utility class for formatting log timestamps with timezone awareness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>format_string</strong> (<em>str</em>) – Datetime format string.</p></li>
+<li><p><strong>timezone</strong> (<em>str</em>) – Timezone string compatible with pytz.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.types.TimeFormatter.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.types.TimeFormatter.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a datetime object according to the configured format and timezone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timestamp</strong> (<em>datetime</em>) – UTC datetime to format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted timestamp string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ptgctl_pipeline.ptgctl_pipeline.logger.handlers"></span><dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.ConsoleLogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.handlers.</span></span><span class="sig-name descname"><span class="pre">ConsoleLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_formatter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.ConsoleLogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler" title="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogHandler</span></code></a></p>
+<p>Logs messages to the console with time formatting.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.ConsoleLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.ConsoleLogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.FileLogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.handlers.</span></span><span class="sig-name descname"><span class="pre">FileLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_formatter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.FileLogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler" title="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogHandler</span></code></a></p>
+<p>Logs messages to a plain text file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.FileLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.FileLogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.JSONLogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.handlers.</span></span><span class="sig-name descname"><span class="pre">JSONLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename_prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./logs'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.JSONLogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler" title="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogHandler</span></code></a></p>
+<p>Logs messages to a JSON file, appending new messages as structured entries.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.JSONLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.JSONLogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.handlers.</span></span><span class="sig-name descname"><span class="pre">LogHandler</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract base class for all log handlers.
+Subclasses must implement the <cite>emit</cite> method.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ptgctl_pipeline.ptgctl_pipeline.logger"></span><dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.ConsoleLogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.</span></span><span class="sig-name descname"><span class="pre">ConsoleLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_formatter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.ConsoleLogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler" title="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogHandler</span></code></a></p>
+<p>Logs messages to the console with time formatting.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.ConsoleLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.ConsoleLogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.FileLogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.</span></span><span class="sig-name descname"><span class="pre">FileLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_formatter</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.FileLogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler" title="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogHandler</span></code></a></p>
+<p>Logs messages to a plain text file.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.FileLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.FileLogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.JSONLogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.</span></span><span class="sig-name descname"><span class="pre">JSONLogHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename_prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./logs'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.JSONLogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler" title="ptgctl_pipeline.ptgctl_pipeline.logger.handlers.LogHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogHandler</span></code></a></p>
+<p>Logs messages to a JSON file, appending new messages as structured entries.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.JSONLogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.JSONLogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.</span></span><span class="sig-name descname"><span class="pre">LogHandler</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract base class for all log handlers.
+Subclasses must implement the <cite>emit</cite> method.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogHandler.emit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.</span></span><span class="sig-name descname"><span class="pre">LogLevel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enum representing log severity levels.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.CRITICAL">
+<span class="sig-name descname"><span class="pre">CRITICAL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.CRITICAL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.DEBUG">
+<span class="sig-name descname"><span class="pre">DEBUG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.ERROR">
+<span class="sig-name descname"><span class="pre">ERROR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.INFO">
+<span class="sig-name descname"><span class="pre">INFO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.INFO" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.WARNING">
+<span class="sig-name descname"><span class="pre">WARNING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel.WARNING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.</span></span><span class="sig-name descname"><span class="pre">Logger</span></span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A flexible logger that supports multiple output handlers and log levels.</p>
+<p>Supports structured logging with metadata, level filtering, and dispatching
+to console, file, or JSON-based outputs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.add_handler">
+<span class="sig-name descname"><span class="pre">add_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.add_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new handler to emit log messages to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>handler</strong> (<a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogHandler" title="ptgctl_pipeline.ptgctl_pipeline.logger.LogHandler"><em>LogHandler</em></a>) – A log handler instance (e.g., ConsoleLogHandler)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self for method chaining</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger" title="ptgctl_pipeline.ptgctl_pipeline.logger.Logger">Logger</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.critical">
+<span class="sig-name descname"><span class="pre">critical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.critical" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.debug">
+<span class="sig-name descname"><span class="pre">debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.error">
+<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.info">
+<span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit a log message if it meets the minimum severity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>level</strong> (<a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel" title="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel"><em>LogLevel</em></a>) – Severity level</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Log message body</p></li>
+<li><p><strong>sender</strong> (<em>str</em>) – Name of the component or module emitting the log</p></li>
+<li><p><strong>extra</strong> (<em>dict</em>) – Additional metadata</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.set_level">
+<span class="sig-name descname"><span class="pre">set_level</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.set_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the minimum level of logs to emit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>level</strong> (<a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel" title="ptgctl_pipeline.ptgctl_pipeline.logger.LogLevel"><em>LogLevel</em></a>) – Minimum severity level</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self for method chaining</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger" title="ptgctl_pipeline.ptgctl_pipeline.logger.Logger">Logger</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.Logger.warning">
+<span class="sig-name descname"><span class="pre">warning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">extra</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.Logger.warning" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.TimeFormatter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ptgctl_pipeline.ptgctl_pipeline.logger.</span></span><span class="sig-name descname"><span class="pre">TimeFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">format_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M:%S'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timezone</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UTC'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.TimeFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Utility class for formatting log timestamps with timezone awareness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>format_string</strong> (<em>str</em>) – Datetime format string.</p></li>
+<li><p><strong>timezone</strong> (<em>str</em>) – Timezone string compatible with pytz.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="ptgctl_pipeline.ptgctl_pipeline.logger.TimeFormatter.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ptgctl_pipeline.ptgctl_pipeline.logger.TimeFormatter.format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a datetime object according to the configured format and timezone.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timestamp</strong> (<em>datetime</em>) – UTC datetime to format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted timestamp string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="how-it-works">
+<h2>How It Works<a class="headerlink" href="#how-it-works" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><cite>Logger</cite>: Main entry point. Supports level-based filtering and multiple log outputs.</p></li>
+<li><p><cite>LogHandler</cite>: Base class for any output format. Subclass to customize where and how logs are written.</p></li>
+<li><p><cite>LogMessage</cite>: Structured message object with metadata and ISO-formatted timestamps.</p></li>
+<li><p><cite>TimeFormatter</cite>: Utility to convert UTC timestamps into human-readable or local time.</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Satori</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="configs/index.html">Configuration Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.pipelines.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.codec.html">Codecs Module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Logger Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-ptgctl_pipeline.ptgctl_pipeline.logger.types">Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-it-works">How It Works</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ptgctl_pipeline.utils.html">Request Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pipelines.html">Pipelines</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a><ul>
+      <li>Previous: <a href="ptgctl_pipeline.codec.html" title="previous chapter">Codecs Module</a></li>
+      <li>Next: <a href="ptgctl_pipeline.utils.html" title="next chapter">Request Utilities</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2025, VIDA-NYU.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/ptgctl_pipeline.logger.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
