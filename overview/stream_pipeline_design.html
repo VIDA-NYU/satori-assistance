@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Stream-Pipeline Design" href="../overview/stream_pipeline_design.html" /><link rel="prev" title="Agent Configuration (agent.yaml)" href="agent_yaml.html" />
-        <link rel="canonical" href="https://vida-nyu.github.io/satori-assistance/configs/pipeline_yaml.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Pipeline Server (ptgctl_pipeline)" href="../ptgctl_pipeline.html" /><link rel="prev" title="Pipeline Configuration (pipeline.yaml)" href="../configs/pipeline_yaml.html" />
+        <link rel="canonical" href="https://vida-nyu.github.io/satori-assistance/overview/stream_pipeline_design.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2024.08.06 -->
-        <title>Pipeline Configuration (pipeline.yaml) - Satori v0.1 documentation</title>
+        <title>Stream-Pipeline Design - Satori v0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -201,12 +201,12 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Configuration Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Configuration Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="agent_yaml.html">Agent Configuration (<cite>agent.yaml</cite>)</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Pipeline Configuration (<cite>pipeline.yaml</cite>)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../configs/index.html">Configuration Guide</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Configuration Guide</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configs/agent_yaml.html">Agent Configuration (<cite>agent.yaml</cite>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configs/pipeline_yaml.html">Pipeline Configuration (<cite>pipeline.yaml</cite>)</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../overview/stream_pipeline_design.html">Stream-Pipeline Design</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Stream-Pipeline Design</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../ptgctl_pipeline.html">Pipeline Server (ptgctl_pipeline)</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Pipeline Server (ptgctl_pipeline)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ptgctl_pipeline.pipelines.html">Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ptgctl_pipeline.codec.html">Codecs Module</a></li>
@@ -240,7 +240,7 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="../_sources/configs/pipeline_yaml.rst.txt" title="View this page">
+  <a class="muted-link" href="../_sources/overview/stream_pipeline_design.rst.txt" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
@@ -260,36 +260,157 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="pipeline-configuration-pipeline-yaml">
-<h1>Pipeline Configuration (<cite>pipeline.yaml</cite>)<a class="headerlink" href="#pipeline-configuration-pipeline-yaml" title="Permalink to this heading">¶</a></h1>
+          <section id="stream-pipeline-design">
+<h1>Stream-Pipeline Design<a class="headerlink" href="#stream-pipeline-design" title="Permalink to this heading">¶</a></h1>
+<section id="stream-pipeline-architecture-for-ar-task-assistance">
+<h2>Stream-Pipeline Architecture for AR Task Assistance<a class="headerlink" href="#stream-pipeline-architecture-for-ar-task-assistance" title="Permalink to this heading">¶</a></h2>
+<p>This document outlines the design rationale and infrastructure of our AR assistance system, focusing on a modular, stream-driven pipeline architecture. The system is designed for real-time interaction, cognitive modularity, and ease of integration with AR interfaces.</p>
+<hr class="docutils" />
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
-<p>Defines a single pipeline including its class, stream binding, and custom configuration.</p>
-</section>
-<section id="top-level-fields">
-<h2>Top-Level Fields<a class="headerlink" href="#top-level-fields" title="Permalink to this heading">¶</a></h2>
+<h3>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h3>
+<p>Our AR assistant system is built around two central concepts:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: (str) Logical name for the pipeline</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">class</span></code>: (str) Import path for the pipeline class</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">stream_map</span></code>: (dict) Internal stream name → actual stream ID</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">config</span></code>: (dict) Custom configuration passed as kwargs to the pipeline class</p></li>
+<li><p><strong>Streams</strong>: Named data channels for input, output, and communication between modules.</p></li>
+<li><p><strong>Pipelines</strong>: Stateless, reactive functions that process data from streams and write back results.</p></li>
+</ul>
+<p>Each pipeline is designed to run independently and respond only when triggered, enabling flexible, low-latency computation suitable for AR environments.</p>
+</section>
+<hr class="docutils" />
+<section id="design-rationale">
+<h3>Design Rationale<a class="headerlink" href="#design-rationale" title="Permalink to this heading">¶</a></h3>
+<section id="psychological-inspiration-parallel-cognitive-modules">
+<h4>Psychological Inspiration: Parallel Cognitive Modules<a class="headerlink" href="#psychological-inspiration-parallel-cognitive-modules" title="Permalink to this heading">¶</a></h4>
+<p>The system is influenced by psychological models of <strong>parallel processing in the human mind</strong>, where specialized brain areas (e.g., vision, reasoning, memory) operate concurrently and coordinate through shared mental states. Similarly, our pipelines are independent units of logic (vision, reasoning, guidance) that interact through shared streams.</p>
+</section>
+<section id="system-architecture-analogy-stream-based-microservices">
+<h4>System Architecture Analogy: Stream-Based Microservices<a class="headerlink" href="#system-architecture-analogy-stream-based-microservices" title="Permalink to this heading">¶</a></h4>
+<p>Our infrastructure reflects principles found in <strong>modern stream microservices</strong> such as <strong>Kafka Streams</strong> and <strong>Flink</strong>:</p>
+<ul class="simple">
+<li><p>Streams represent time-ordered data logs or state snapshots.</p></li>
+<li><p>Pipelines are stateless functions, similar to microservices or stream processors.</p></li>
+<li><p>Execution is event-driven but data access is state-based.</p></li>
+</ul>
+<p>This hybrid model allows us to combine <strong>state consistency</strong> (e.g., latest camera frame) with <strong>reactive execution</strong> (e.g., user action detected).</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="key-concepts">
+<h3>Key Concepts<a class="headerlink" href="#key-concepts" title="Permalink to this heading">¶</a></h3>
+<section id="streams">
+<h4>1. Streams<a class="headerlink" href="#streams" title="Permalink to this heading">¶</a></h4>
+<p>A stream is a named channel that holds or transmits data between modules.</p>
+<ul class="simple">
+<li><p><strong>Input Stream</strong>: Carries ongoing data (e.g., camera frames, user belief).</p></li>
+<li><p><strong>Trigger Stream</strong>: Signals when a pipeline should run.</p></li>
+<li><p><strong>Output Stream</strong>: Receives computed results (e.g., guidance, prompts).</p></li>
+</ul>
+<p>Streams are interpreted both as:</p>
+<ul class="simple">
+<li><p><strong>State</strong>: The latest known value.</p></li>
+<li><p><strong>Events</strong>: State-change triggers that invoke pipeline logic.</p></li>
 </ul>
 </section>
-<section id="example">
-<h2>Example<a class="headerlink" href="#example" title="Permalink to this heading">¶</a></h2>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-guidance</span>
-<span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pipelines.task.GPTGuidancePipeline</span>
-
-<span class="nt">stream_map</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">frame</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">frame</span>
-<span class="w">  </span><span class="nt">belief</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intent:belief</span>
-<span class="w">  </span><span class="nt">desire</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intent:desire</span>
-
-<span class="nt">config</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">system_prompt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../prompts/guidance/system.yaml</span>
-<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gpt-4</span>
+<section id="pipelines">
+<h4>2. Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this heading">¶</a></h4>
+<p>Pipelines are reactive, stateless processors:</p>
+<ul class="simple">
+<li><p>Triggered by a trigger stream.</p></li>
+<li><p>Read the latest values from one or more input streams.</p></li>
+<li><p>Output a <strong>state-update event</strong> to an output stream.</p></li>
+</ul>
+<p>Each pipeline is analogous to a <strong>lambda function</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pipeline</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">output</span>
 </pre></div>
 </div>
+<p>Execution only occurs when explicitly triggered.</p>
+</section>
+<section id="pipeline-server">
+<h4>3. Pipeline Server<a class="headerlink" href="#pipeline-server" title="Permalink to this heading">¶</a></h4>
+<p>The pipeline server manages:</p>
+<ul class="simple">
+<li><p>Stream subscriptions.</p></li>
+<li><p>Asynchronous execution of pipelines.</p></li>
+<li><p>Routing input, trigger, and output streams.</p></li>
+</ul>
+<p>It orchestrates parallel execution while keeping pipelines decoupled.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="example-step-confirmation-in-ar-task">
+<h3>Example: Step Confirmation in AR Task<a class="headerlink" href="#example-step-confirmation-in-ar-task" title="Permalink to this heading">¶</a></h3>
+<p><strong>Scenario</strong>: The assistant needs to confirm whether the user is performing “Task X”.</p>
+<section id="flow">
+<h4>Flow:<a class="headerlink" href="#flow" title="Permalink to this heading">¶</a></h4>
+<ol class="arabic simple">
+<li><p><strong>Pipeline writes to <code class="docutils literal notranslate"><span class="pre">stream:popup_request</span></code></strong>:</p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;interaction_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Are you doing Task X?&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;options&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;no&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Frontend reads <code class="docutils literal notranslate"><span class="pre">stream:popup_request</span></code></strong>, displays a confirmation window.</p></li>
+<li><p><strong>User clicks “yes”</strong>, and the UI writes to <code class="docutils literal notranslate"><span class="pre">stream:popup_response</span></code>:</p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;interaction_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;yes&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p><strong>Pipeline listening to <code class="docutils literal notranslate"><span class="pre">popup_response</span></code></strong> reads the result and continues execution.</p></li>
+</ol>
+<p>This interaction pattern uses:</p>
+<ul class="simple">
+<li><p><strong>Streams as state-update events</strong>.</p></li>
+<li><p><strong>Unique interaction IDs</strong> to match prompt and response.</p></li>
+<li><p>Clear separation between pipeline logic and interface state.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="interaction-design-structured-protocol">
+<h3>Interaction Design: Structured Protocol<a class="headerlink" href="#interaction-design-structured-protocol" title="Permalink to this heading">¶</a></h3>
+<p>To manage human-in-the-loop interactions, we define a minimal protocol:</p>
+<section id="request-stream-popup-request">
+<h4>Request Stream (<code class="docutils literal notranslate"><span class="pre">popup_request</span></code>)<a class="headerlink" href="#request-stream-popup-request" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">interaction_id</span></code>: Unique ID for each interaction.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">message</span></code>: Prompt text.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">options</span></code>: Valid responses.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: <code class="docutils literal notranslate"><span class="pre">active</span></code>, <code class="docutils literal notranslate"><span class="pre">completed</span></code>, <code class="docutils literal notranslate"><span class="pre">expired</span></code>.</p></li>
+</ul>
+</section>
+<section id="response-stream-popup-response">
+<h4>Response Stream (<code class="docutils literal notranslate"><span class="pre">popup_response</span></code>)<a class="headerlink" href="#response-stream-popup-response" title="Permalink to this heading">¶</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">interaction_id</span></code>: Matches the prompt.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">response</span></code>: The user’s choice.</p></li>
+</ul>
+<p>This design ensures:</p>
+<ul class="simple">
+<li><p><strong>Scalability</strong> with multiple simultaneous prompts.</p></li>
+<li><p><strong>Fault tolerance</strong> if UI restarts.</p></li>
+<li><p><strong>Clear lifecycle control</strong> using <code class="docutils literal notranslate"><span class="pre">status</span></code> and timestamps.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h3>
+<p>This architecture allows us to build AR assistants that are:</p>
+<ul class="simple">
+<li><p>Modular and parallel, reflecting human cognition.</p></li>
+<li><p>Reactive and efficient, using event-driven computation.</p></li>
+<li><p>Scalable and maintainable, inspired by modern stream systems.</p></li>
+</ul>
+<p>By combining streams and lambda-style pipelines, we achieve a clean separation of concerns, clear data flow, and consistent user interaction, all within a lightweight and extensible framework.</p>
+</section>
 </section>
 </section>
 
@@ -298,23 +419,23 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../overview/stream_pipeline_design.html">
+          <a class="next-page" href="../ptgctl_pipeline.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Stream-Pipeline Design</div>
+                <div class="title">Pipeline Server (ptgctl_pipeline)</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="agent_yaml.html">
+          <a class="prev-page" href="../configs/pipeline_yaml.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Agent Configuration (<cite>agent.yaml</cite>)</div>
+                <div class="title">Pipeline Configuration (<cite>pipeline.yaml</cite>)</div>
                 
               </div>
             </a>
@@ -348,10 +469,32 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Pipeline Configuration (<cite>pipeline.yaml</cite>)</a><ul>
+<li><a class="reference internal" href="#">Stream-Pipeline Design</a><ul>
+<li><a class="reference internal" href="#stream-pipeline-architecture-for-ar-task-assistance">Stream-Pipeline Architecture for AR Task Assistance</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#top-level-fields">Top-Level Fields</a></li>
-<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#design-rationale">Design Rationale</a><ul>
+<li><a class="reference internal" href="#psychological-inspiration-parallel-cognitive-modules">Psychological Inspiration: Parallel Cognitive Modules</a></li>
+<li><a class="reference internal" href="#system-architecture-analogy-stream-based-microservices">System Architecture Analogy: Stream-Based Microservices</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#key-concepts">Key Concepts</a><ul>
+<li><a class="reference internal" href="#streams">1. Streams</a></li>
+<li><a class="reference internal" href="#pipelines">2. Pipelines</a></li>
+<li><a class="reference internal" href="#pipeline-server">3. Pipeline Server</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-step-confirmation-in-ar-task">Example: Step Confirmation in AR Task</a><ul>
+<li><a class="reference internal" href="#flow">Flow:</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#interaction-design-structured-protocol">Interaction Design: Structured Protocol</a><ul>
+<li><a class="reference internal" href="#request-stream-popup-request">Request Stream (<code class="docutils literal notranslate"><span class="pre">popup_request</span></code>)</a></li>
+<li><a class="reference internal" href="#response-stream-popup-response">Response Stream (<code class="docutils literal notranslate"><span class="pre">popup_response</span></code>)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

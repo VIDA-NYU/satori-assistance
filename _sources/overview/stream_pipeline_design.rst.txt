@@ -1,0 +1,5 @@
+Stream-Pipeline Design
+======================
+
+.. include:: ../md/stream_pipeline_design.md
+   :parser: myst_parser.sphinx_

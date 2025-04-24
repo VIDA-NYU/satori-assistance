@@ -1,0 +1,138 @@
+
+# Stream-Pipeline Architecture for AR Task Assistance
+
+This document outlines the design rationale and infrastructure of our AR assistance system, focusing on a modular, stream-driven pipeline architecture. The system is designed for real-time interaction, cognitive modularity, and ease of integration with AR interfaces.
+
+---
+
+## Overview
+
+Our AR assistant system is built around two central concepts:
+
+- **Streams**: Named data channels for input, output, and communication between modules.
+- **Pipelines**: Stateless, reactive functions that process data from streams and write back results.
+
+Each pipeline is designed to run independently and respond only when triggered, enabling flexible, low-latency computation suitable for AR environments.
+
+---
+
+## Design Rationale
+
+### Psychological Inspiration: Parallel Cognitive Modules
+
+The system is influenced by psychological models of **parallel processing in the human mind**, where specialized brain areas (e.g., vision, reasoning, memory) operate concurrently and coordinate through shared mental states. Similarly, our pipelines are independent units of logic (vision, reasoning, guidance) that interact through shared streams.
+
+### System Architecture Analogy: Stream-Based Microservices
+
+Our infrastructure reflects principles found in **modern stream microservices** such as **Kafka Streams** and **Flink**:
+- Streams represent time-ordered data logs or state snapshots.
+- Pipelines are stateless functions, similar to microservices or stream processors.
+- Execution is event-driven but data access is state-based.
+
+This hybrid model allows us to combine **state consistency** (e.g., latest camera frame) with **reactive execution** (e.g., user action detected).
+
+---
+
+## Key Concepts
+
+### 1. Streams
+
+A stream is a named channel that holds or transmits data between modules.
+
+- **Input Stream**: Carries ongoing data (e.g., camera frames, user belief).
+- **Trigger Stream**: Signals when a pipeline should run.
+- **Output Stream**: Receives computed results (e.g., guidance, prompts).
+
+Streams are interpreted both as:
+- **State**: The latest known value.
+- **Events**: State-change triggers that invoke pipeline logic.
+
+### 2. Pipelines
+
+Pipelines are reactive, stateless processors:
+
+- Triggered by a trigger stream.
+- Read the latest values from one or more input streams.
+- Output a **state-update event** to an output stream.
+
+Each pipeline is analogous to a **lambda function**:
+```python
+def pipeline(inputs) -> output
+```
+
+Execution only occurs when explicitly triggered.
+
+### 3. Pipeline Server
+
+The pipeline server manages:
+- Stream subscriptions.
+- Asynchronous execution of pipelines.
+- Routing input, trigger, and output streams.
+
+It orchestrates parallel execution while keeping pipelines decoupled.
+
+---
+
+## Example: Step Confirmation in AR Task
+
+**Scenario**: The assistant needs to confirm whether the user is performing "Task X".
+
+### Flow:
+1. **Pipeline writes to `stream:popup_request`**:
+```json
+{
+  "interaction_id": "abc123",
+  "message": "Are you doing Task X?",
+  "options": ["yes", "no"],
+  "status": "active"
+}
+```
+
+2. **Frontend reads `stream:popup_request`**, displays a confirmation window.
+
+3. **User clicks "yes"**, and the UI writes to `stream:popup_response`:
+```json
+{
+  "interaction_id": "abc123",
+  "response": "yes"
+}
+```
+
+4. **Pipeline listening to `popup_response`** reads the result and continues execution.
+
+This interaction pattern uses:
+- **Streams as state-update events**.
+- **Unique interaction IDs** to match prompt and response.
+- Clear separation between pipeline logic and interface state.
+
+---
+
+## Interaction Design: Structured Protocol
+
+To manage human-in-the-loop interactions, we define a minimal protocol:
+
+### Request Stream (`popup_request`)
+- `interaction_id`: Unique ID for each interaction.
+- `message`: Prompt text.
+- `options`: Valid responses.
+- `status`: `active`, `completed`, `expired`.
+
+### Response Stream (`popup_response`)
+- `interaction_id`: Matches the prompt.
+- `response`: The user's choice.
+
+This design ensures:
+- **Scalability** with multiple simultaneous prompts.
+- **Fault tolerance** if UI restarts.
+- **Clear lifecycle control** using `status` and timestamps.
+
+---
+
+## Summary
+
+This architecture allows us to build AR assistants that are:
+- Modular and parallel, reflecting human cognition.
+- Reactive and efficient, using event-driven computation.
+- Scalable and maintainable, inspired by modern stream systems.
+
+By combining streams and lambda-style pipelines, we achieve a clean separation of concerns, clear data flow, and consistent user interaction, all within a lightweight and extensible framework.

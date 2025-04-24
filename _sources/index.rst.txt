@@ -15,5 +15,6 @@ Satori supports both local testing and deployment in live AR environments. Its a
    :caption: Contents:
 
    configs/index
+   overview/stream_pipeline_design
    ptgctl_pipeline
    pipelines
