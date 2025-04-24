@@ -1,0 +1,25 @@
+DallePipeline:
+  PROMPT_TEXT: "You are Dalle"
+  prefix: "I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: "
+  modifier: " in the style of flat, instructional illustrations. no background. accurate, concise, comfortable color style"
+  full_prompt_template: "{{ prefix }}{{ user_prompt }}{{ modifier }}"
+
+  content_payload: |
+    content = {
+        "prompt": prompt,
+        "n": 1,
+        "quality": "standard",
+        "size": "1024x1024",
+        "style": "vivid"
+    }
+
+DallePipelineAnim:
+  PROMPT_TEXT: "You are Dalle"
+  prefix: "I NEED to test how the tool works with extremely simple prompts. DO NOT add any detail, just use it AS-IS: "
+  modifier: "in the style of flat, instructional illustrations. no background. accurate, concise, comfortable color style"
+  step_split_delimiter: ";"
+  step_slice_offset: 3
+  step_prompt_template: "{{ prefix }}{{ step[step_slice_offset:] }}{{ modifier }}"
+
+  on_trigger_stream:
+    - "steps = self.generate_steps(prompt)"

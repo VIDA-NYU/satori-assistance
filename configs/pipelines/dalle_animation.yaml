@@ -1,0 +1,6 @@
+name: dalle_animation
+class: pipelines.render.DallePipelineAnim
+
+stream_map: {}
+
+config: {}

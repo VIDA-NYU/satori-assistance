@@ -1,0 +1,16 @@
+agent:
+  stream_map:
+    main: main
+  global_args:
+    api_key: 
+  pipelines:
+    - ref: ../pipelines/guidance.yaml
+    - ref: ../pipelines/task_control.yaml
+    - ref: ../pipelines/frame_selector.yaml
+    - ref: ../pipelines/dalle_animation.yaml
+    - ref: ../pipelines/task_planner.yaml
+  triggers:
+    - stream: intent:trigger:control
+      interval: 2
+    - stream: intent:trigger-planner
+      interval: 10

@@ -1,0 +1,14 @@
+name: gpt-guidance
+class: pipelines.task.GPTGuidancePipeline
+
+stream_map:
+  main: main
+  belief: belief
+  desire: desire
+  output: output
+  intent:trigger:guidance: intent:trigger:guidance
+
+config:
+  system_prompt: ../prompts/guidance/system.yaml
+  model: gpt-4o-mini
+  image_resolution: 512

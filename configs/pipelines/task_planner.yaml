@@ -1,0 +1,6 @@
+name: task_control
+class: pipelines.task.TaskPlannerPipeline
+
+stream_map: {}
+
+config: {}

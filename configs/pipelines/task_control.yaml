@@ -1,0 +1,17 @@
+name: task_control
+class: pipelines.task.TaskControlPipeline
+
+stream_map:
+  main: main
+  intent:task_plan: intent:task_plan
+  intent:pred:step:checkpoints: intent:pred:step:checkpoints
+  intent:trigger:guidance: intent:trigger:guidance
+  assistant:fast_activate: assistant:fast_activate
+  assistant:slow_activate: assistant:slow_activate
+  intent:feedback:checkpoint: intent:feedback:checkpoint
+  intent:feedback:step: intent:feedback:step
+  intent:task:step:current: intent:task:step:current
+  intent:trigger:controlx: intent:trigger:control
+  intent:pred:guidance: intent:pred:guidance
+config:
+  task_name: coffee

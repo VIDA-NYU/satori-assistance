@@ -1,0 +1,7 @@
+name: frame_selector
+class: pipelines.frame_selector.FrameSelectorPipeline
+
+stream_map:
+  main: main
+
+config: {}

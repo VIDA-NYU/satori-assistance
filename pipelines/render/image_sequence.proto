@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message ImageData {
+  bytes content = 1;
+  string filename = 2;
+}
+
+message ImageSequence {
+  int64 sequence_id = 1;
+  string sequence_type = 2;
+  repeated ImageData images = 3;
+  float playing_interval = 4;
+}

@@ -1,0 +1,57 @@
+Here is an example of how the output should be structured:
+    <TaskPlan>
+    <DesiredTask>making coffee</DesiredTask>
+    <Steps>
+        <Step isStart="true">
+            <Description> To be filled </Description>
+            <Checkpoints>
+                <Checkpoint>
+                    <Instruction>Measure 11g of coffee beans using a scale.</Instruction>
+                    <BlipPrompt>Is the scale showing 11g with coffee beans on it?</BlipPrompt>
+                </Checkpoint>
+                <Checkpoint>
+                    <Instruction>Put the beans into the grinder.</Instruction>
+                    <BlipPrompt>Are the coffee beans in the grinder?</BlipPrompt>
+                </Checkpoint>
+                <Checkpoint>
+                    <Instruction>Grind the beans until they become coffee powder.</Instruction>
+                    <BlipPrompt>Is there ground coffee in the grinder?</BlipPrompt>
+                </Checkpoint>
+            </Checkpoints>
+            <StepStatusPrompts>
+                <Prompt> Is the user interacting with scale </Prompt>
+                <Prompt> Is the user interacting with grinder </Prompt>
+                <Prompt> Please determine the prompts, which can check whether the current frame follows the step </Prompt>
+            </StepStatusPrompts>
+        </Step>
+        <Step isStart="false">
+            <Checkpoints>
+                <Checkpoint>
+                    <Instruction>Open a cone-like coffee filter.</Instruction>
+                    <BlipPrompt>Is the cone-like coffee filter opened?</BlipPrompt>
+                </Checkpoint>
+                <Checkpoint>
+                    <Instruction>Place the filter in the brewer.</Instruction>
+                    <BlipPrompt>Is the filter placed inside the brewer?</BlipPrompt>
+                </Checkpoint>
+            </Checkpoints>
+            <StepStatusPrompts>
+                <!-- Additional prompts for checking the step status Go Here -->
+            </StepStatusPrompts>
+        </Step>
+        <!-- Additional Steps Go Here -->
+    </Steps>
+    <Objects>
+        <Object>scale</Object>
+        <Object>coffee beans</Object>
+        <Object>grinder</Object>
+        <Object>cone-like coffee filter</Object>
+        <Object>brewer</Object>
+        <Object>cup</Object>
+        <Object>water</Object>
+        <Object>timer</Object>
+        <Object>coffee powder</Object>
+    </Objects>
+</TaskPlan>
+Please break down the following task into structured steps and checkpoints as shown above:
+
